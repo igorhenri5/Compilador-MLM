@@ -5,7 +5,7 @@
 //declaracoes C
 %{
 #include<stdio.h>
-$include<string>
+#include<string>
 int yyerror(char *s);
 int yylex(void);
 %}
