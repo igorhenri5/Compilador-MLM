@@ -45,7 +45,7 @@ char_constant			"'"ascii"'"
 "false"							{ yylval.bool_t = false; return BOOLEAN_CONSTANT; }
 "true"							{ yylval.bool_t = true; return BOOLEAN_CONSTANT; }  
 
-{identifier} { yyval.string_t = yytext; return T_IDENTIFIER; }
+{identifier} { yyval.string_t = yytext; return IDENTIFIER; }
 
 ":"		{ return T_DOISP; }
 ";"		{ return T_PVIRG; }
