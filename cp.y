@@ -1,22 +1,17 @@
-/*
- *  GERADOR DE ANALISADOR SINTÁTICO
- * */
-
-//declaracoes C
 %{
-#include<stdio.h>
-#include<string>
+#include "heading.h"
 int yyerror(char *s);
 int yylex(void);
 %}
 
-//declaracoes
-%union{ //specifies the entire collection of possible data types for semantic values
+%union{ 
   int		int_t;
   float		float_t;
   char		char_t;
-  string	string_t;
+  char*	string_t;
 }
+
+%start program
 
 %token	<int_t>		INTEGER_CONSTANT
 %token	<double_t>	REAL_CONSTANT
@@ -29,7 +24,7 @@ int yylex(void);
 %token	REAL
 %token	BOOLEAN
 %token	CHAR
-%token	BEGIN
+%token	BEGIN_T
 %token	END
 %token	IF
 %token	THEN
@@ -56,11 +51,8 @@ int yylex(void);
 %right	NOT
 %right	T_IGUAL
 
-%start	program
-
 %%
-//regras de traducao - gramaticas LC
-program: 	PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt;
+program: 	PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { printf("\nPRGM"); };;
 
 decl_list: 	decl_list T_PVIRG decl
 			| decl;
@@ -70,12 +62,12 @@ decl: 		ident_list T_DOISP type;
 ident_list: ident_list T_VIRG IDENTIFIER
 			| IDENTIFIER;
 
-type : 	INTEGER
-        | REAL
-        | BOOLEAN
-        | CHAR;
+type : 	INTEGER     { printf("\nt_INTEGER"); };
+        | REAL      { printf("\nt_REAL"); };
+        | BOOLEAN   { printf("\nt_BOOLEAN"); };
+        | CHAR      { printf("\nt_CHAR"); };;
 
-compound_stmt: BEGIN stmt_list END;
+compound_stmt: BEGIN_T stmt_list END;
 
 stmt_list: 	stmt_list T_PVIRG stmt
 			| stmt;
@@ -89,27 +81,27 @@ stmt: 	assign_stmt
 
 assign_stmt: IDENTIFIER T_IGUAL expr;
 
-if_stmt: 	IF cond THEN stmt
-          	| IF cond THEN stmt ELSE stmt;
+if_stmt: 	IF cond THEN stmt                 { printf("\n_IF"); };
+          	| IF cond THEN stmt ELSE stmt   { printf("\n_IF_ELSE"); };;
 
 cond: expr;
 
 loop_stmt: stmt_prefix DO stmt_list stmt_suffix;
 
-stmt_prefix: 	/*vazio*/
+stmt_prefix: 	
 				| WHILE cond;
 
 stmt_suffix: 	UNTIL cond
               	| END;
 
-read_stmt: READ T_ABRE ident_list T_FECHA  { printf("\nREAD: ?"); };
+read_stmt: READ T_ABRE ident_list T_FECHA  { printf("\nREAD"); };
 
-write_stmt: WRITE T_ABRE expr_list T_FECHA  { printf("\nWRITE : ?"); };
+write_stmt: WRITE T_ABRE expr_list T_FECHA  { printf("\nWRITE"); };
 
 expr_list: 	expr
 			| expr_list T_VIRG expr;
 
-expr: 		simple_expr
+expr: 		simple_expr     { printf("\n_exp"); };
 			| simple_expr RELOP simple_expr ;
 
 simple_expr: 	term
@@ -121,31 +113,20 @@ term: 		factor_a
 factor_a: 	MENOS factor ;
 			| factor;
 
-factor: 	IDENTIFIER
+factor: 	IDENTIFIER               { printf("\n_IDENTIFIER"); };
             | constant
             | T_ABRE expr T_FECHA
             | NOT factor;
 
-constant: 	INTEGER_CONSTANT
+constant: 	INTEGER_CONSTANT 
             | REAL_CONSTANT
             | CHAR_CONSTANT
             | BOOLEAN_CONSTANT;
 
-
 %%
-
-//rotinas C
-int yyerror(string s)
-{
-  extern int yylineno;	// defined and maintained in lex.c
-  extern char *yytext;	// defined and maintained in lex.c
-
-  cerr << "ERROR: " << s << " at symbol \"" << yytext;
-  cerr << "\" on line " << yylineno << endl;
-  exit(1);
-}
 
 int yyerror(char *s)
 {
-  return yyerror(string(s));
+  printf("ERR");
+  return 1;
 }
