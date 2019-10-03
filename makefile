@@ -5,13 +5,13 @@
 CC	= g++
 CFLAGS	= -g -Wall -ansi -pedantic
 
-#calc:		$(OBJS)
-#		$(CC) $(CFLAGS) $(OBJS) -o calc -lfl
+#main:		$(OBJS)
+#		$(CC) $(CFLAGS) $(OBJS) -o a.out -lfl
 
 lex.o:		lex.c
 		$(CC) $(CFLAGS) -c lex.c -o lex.o
 
-lex:		yy.lex 
+lex:		yy.lex
 		flex yy.lex
 		cp lex.yy.c lex.c
 
@@ -20,14 +20,14 @@ stx.o:	bison.c
 
 stx:	stx.y
 		bison -d -v stx.y
-		cp stx.tab.c bison.c
-		cmp -s stx.tab.h tok.h || cp stx.tab.h tok.h
+		#cp stx.tab.c bison.c
+		#cmp -s stx.tab.h tok.h || cp stx.tab.h tok.h
 
-#main.o:		main.cc
-#		$(CC) $(CFLAGS) -c main.cc -o main.o
+main.o: main.cpp
+		$(CC) $(CFLAGS) -c main.cpp -o main.o
 
 #lex.o yac.o main.o	: heading.h
 #lex.o main.o		: tok.h
 
-#clean:
-#	rm -f *.o *~ lex.c lex.yy.c bison.c tok.h calc.tab.c calc.tab.h calc.output calc
+clean:
+	rm -f *.o *~ lex.c lex.yy.c stx.tab.c stx.tab.h stx.output a.ouat

@@ -1,0 +1,14 @@
+program teste02;
+
+a: real;
+
+begin
+
+read(a);
+
+if(a = 5) 
+then a = 2
+else a = 1
+
+
+end
