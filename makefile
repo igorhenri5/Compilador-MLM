@@ -18,8 +18,8 @@ lex:		yy.lex
 stx.o:	bison.c
 		$(CC) $(CFLAGS) -c bison.c -o bison.o
 
-stx:	yy.y
-		bison -d -v yy.y
+stx:	stx.y
+		bison -d -v stx.y
 		cp stx.tab.c bison.c
 		cmp -s stx.tab.h tok.h || cp stx.tab.h tok.h
 
