@@ -1,5 +1,6 @@
 %{
-#include "cp.h"
+//#include "cp.h"
+#include "y.tab.h"
 %}
 
 delim 		[ \t\n]

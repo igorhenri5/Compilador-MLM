@@ -1,7 +1,12 @@
 %{
-  #include "heading.h"
-  int yyerror(char *s);
-  int yylex(void);
+  void yyerror(char *s);
+  int yylex();
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <ctype.h>
+  int symbols[52];
+  int symbolVal(char symbol);
+  void updateSymbolVal(char symbol, int val);
 %}
 
 %union{ 
@@ -54,78 +59,105 @@
 %%
 program: 	PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { printf("\nPRGM"); };;
 
-decl_list: 	decl_list T_PVIRG decl
-			| decl;
+decl_list:    decl_list T_PVIRG decl
+		          | decl;
 
-decl: 		ident_list T_DOISP type;
+decl: 		    ident_list T_DOISP type;
 
-ident_list: ident_list T_VIRG IDENTIFIER
-			| IDENTIFIER;
+ident_list:   ident_list T_VIRG IDENTIFIER
+			        | IDENTIFIER;
 
-type : 	INTEGER     { printf("\nt_INTEGER"); };
-        | REAL      { printf("\nt_REAL"); };
-        | BOOLEAN   { printf("\nt_BOOLEAN"); };
-        | CHAR      { printf("\nt_CHAR"); };;
+type : 	      INTEGER     { printf("\nt_INTEGER"); };
+              | REAL      { printf("\nt_REAL"); };
+              | BOOLEAN   { printf("\nt_BOOLEAN"); };
+              | CHAR      { printf("\nt_CHAR"); };;
 
 compound_stmt: BEGIN_T stmt_list END;
 
-stmt_list: 	stmt_list T_PVIRG stmt
-			| stmt;
+stmt_list:    stmt_list T_PVIRG stmt
+			        | stmt;
 
-stmt: 	assign_stmt
-        | if_stmt
-        | loop_stmt
-        | read_stmt
-        | write_stmt
-        | compound_stmt;
+stmt:       	assign_stmt
+              | if_stmt
+              | loop_stmt
+              | read_stmt
+              | write_stmt
+              | compound_stmt;
 
 assign_stmt: IDENTIFIER T_IGUAL expr;
 
-if_stmt: 	IF cond THEN stmt                 { printf("\n_IF"); };
-          	| IF cond THEN stmt ELSE stmt   { printf("\n_IF_ELSE"); };;
+if_stmt: 	    IF cond THEN stmt                 { printf("\n_IF"); };
+          	  | IF cond THEN stmt ELSE stmt   { printf("\n_IF_ELSE"); };;
 
-cond: expr;
+cond:         expr;
 
-loop_stmt: stmt_prefix DO stmt_list stmt_suffix;
+loop_stmt:    stmt_prefix DO stmt_list stmt_suffix;
 
 stmt_prefix: 	
-				| WHILE cond;
+				      | WHILE cond;
 
 stmt_suffix: 	UNTIL cond
-              	| END;
+      	      | END;
 
-read_stmt: READ T_ABRE ident_list T_FECHA  { printf("\nREAD"); };
+read_stmt:    READ T_ABRE ident_list T_FECHA  { printf("\nREAD"); };
 
-write_stmt: WRITE T_ABRE expr_list T_FECHA  { printf("\nWRITE"); };
+write_stmt:   WRITE T_ABRE expr_list T_FECHA  { printf("\nWRITE"); };
 
-expr_list: 	expr
-			| expr_list T_VIRG expr;
+expr_list: 	  expr
+			        | expr_list T_VIRG expr;
 
-expr: 		simple_expr     { printf("\n_exp"); };
-			| simple_expr RELOP simple_expr ;
+expr: 		    simple_expr     { printf("\n_exp"); };
+			        | simple_expr RELOP simple_expr ;
 
 simple_expr: 	term
-				| simple_expr ADDOP term ;
+			        | simple_expr ADDOP term ;
 
-term: 		factor_a
-			| term MULOP factor_a ;
+term: 		    factor_a
+			        | term MULOP factor_a ;
 
-factor_a: 	MENOS factor ;
-			| factor;
+factor_a: 	  MENOS factor ;
+			        | factor;
 
-factor: 	IDENTIFIER               { printf("\n_IDENTIFIER"); };
-            | constant
-            | T_ABRE expr T_FECHA
-            | NOT factor;
+factor: 	    IDENTIFIER               { printf("\n_IDENTIFIER"); };
+              | constant
+              | T_ABRE expr T_FECHA
+              | NOT factor;
 
-constant: 	INTEGER_CONSTANT 
-            | REAL_CONSTANT
-            | CHAR_CONSTANT
-            | BOOLEAN_CONSTANT;
+constant: 	  INTEGER_CONSTANT 
+              | REAL_CONSTANT
+              | CHAR_CONSTANT
+              | BOOLEAN_CONSTANT;
 
 %%
 
-int yyerror(char *s){
-  printf("ERR");
-  return 1;
+int computeSymbolIndex(char token){
+  int idx = -1;
+  if(islower(token)){
+    idx = token - 'a' + 26;
+  }else if(isupper(token)){
+    idx = token - 'A';
+  }
+  return idx;
+}
+
+int symbolVal(char symbol){
+  int bucket = computeSymbolIndex(symbol);
+  return symbols[bucket];
+}
+
+void updateSymbolVal(char symbol, int val){
+  int bucket = computeSymbolIndex(symbol);
+  symbols[bucket] = val;
+}
+
+int main(){
+  int i;
+  for(i=0; i<52; i++){
+    symbols[i]=0;
+  }
+  return yyparse();
+}
+
+void yyerror(char *s){
+  printf("ERR - %s",s);
 }

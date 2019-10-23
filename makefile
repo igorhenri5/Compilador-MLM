@@ -17,3 +17,10 @@ l:
 c: 
 	gcc cp.c lex.yy.c -o cp
 
+y:
+	yacc -d cp.y
+	lex cp.lex
+	gcc lex.yy.c y.tab.c -o cply
+
+ry:
+	./cply < teste4.txt
