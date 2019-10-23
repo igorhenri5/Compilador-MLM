@@ -24,5 +24,5 @@ y:
 	yacc -d cp.y
 	lex cp.lex
 	gcc lex.yy.c y.tab.c -o cply
-	clear
+	
 	./cply < teste4.txt

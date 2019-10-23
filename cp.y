@@ -58,28 +58,29 @@
 %right  RELOP ADDOP MULOP
 
 %%
-program:      PROGRAM IDENTIFIER T_PVIRG {printf("\nNICE");}
-              | PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { printf("\nPRGM"); };;
+program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { printf("\nPRGM"); };
 
 decl_list:    decl_list T_PVIRG decl
 		          | decl;
 
-decl: 		    ident_list T_DOISP type;
+decl: 		    |
+              ident_list T_DOISP type;
 
 ident_list:   ident_list T_VIRG IDENTIFIER
 			        | IDENTIFIER;
 
-type : 	      INTEGER     { printf("\nt_INTEGER"); };
-              | REAL      { printf("\nt_REAL"); };
-              | BOOLEAN   { printf("\nt_BOOLEAN"); };
-              | CHAR      { printf("\nt_CHAR"); };;
+type : 	      INTEGER     { printf("\nt_INTEGER"); }
+              | REAL      { printf("\nt_REAL");    }
+              | BOOLEAN   { printf("\nt_BOOLEAN"); }
+              | CHAR      { printf("\nt_CHAR");    };
 
 compound_stmt: BEGIN_T stmt_list END;
 
 stmt_list:    stmt_list T_PVIRG stmt
 			        | stmt;
 
-stmt:       	assign_stmt
+stmt:       	
+              | assign_stmt
               | if_stmt
               | loop_stmt
               | read_stmt
@@ -88,8 +89,8 @@ stmt:       	assign_stmt
 
 assign_stmt: IDENTIFIER T_IGUAL expr;
 
-if_stmt: 	    IF cond THEN stmt                 { printf("\n_IF"); };
-          	  | IF cond THEN stmt ELSE stmt   { printf("\n_IF_ELSE"); };;
+if_stmt: 	    IF cond THEN stmt               { printf("\n_IF");      }
+          	  | IF cond THEN stmt ELSE stmt   { printf("\n_IF_ELSE"); };
 
 cond:         expr;
 
@@ -101,7 +102,7 @@ stmt_prefix:
 stmt_suffix: 	UNTIL cond
       	      | END;
 
-read_stmt:    READ T_ABRE ident_list T_FECHA  { printf("\nREAD"); };
+read_stmt:    READ T_ABRE ident_list T_FECHA  { printf("\nREAD");  }
 
 write_stmt:   WRITE T_ABRE expr_list T_FECHA  { printf("\nWRITE"); };
 

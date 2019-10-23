@@ -1,1 +1,7 @@
-program rusro;
+program teste01;
+
+a: integer;
+
+begin
+
+end
