@@ -1,22 +1,22 @@
 %{
-#include "heading.h"
-int yyerror(char *s);
-int yylex(void);
+  #include "heading.h"
+  int yyerror(char *s);
+  int yylex(void);
 %}
 
 %union{ 
   int		int_t;
-  float		float_t;
-  char		char_t;
+  float	float_t;
+  char	char_t;
   char*	string_t;
 }
 
 %start program
 
-%token	<int_t>		INTEGER_CONSTANT
+%token	<int_t>		  INTEGER_CONSTANT
 %token	<double_t>	REAL_CONSTANT
 %token	<string_t>	CHAR_CONSTANT
-%token	<int_t>		BOOLEAN_CONSTANT
+%token	<int_t>		  BOOLEAN_CONSTANT
 %token  <string_t>	IDENTIFIER
 
 %token	PROGRAM
@@ -44,10 +44,10 @@ int yylex(void);
 %token T_ABRE
 %token T_FECHA
 
-%left	RELOP
-%left	ADDOP
-%left	MENOS
-%left	MULOP
+%left	  RELOP
+%left	  ADDOP
+%left	  MENOS
+%left	  MULOP
 %right	NOT
 %right	T_IGUAL
 
@@ -125,8 +125,7 @@ constant: 	INTEGER_CONSTANT
 
 %%
 
-int yyerror(char *s)
-{
+int yyerror(char *s){
   printf("ERR");
   return 1;
 }

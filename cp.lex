@@ -21,23 +21,23 @@ char_constant           "'"{ascii}"'"
 
 "program"       { return PROGRAM; }
 "integer"       { return INTEGER; }
-"real"          { return REAL; }
+"real"          { return REAL; 	  }
 "boolean"       { return BOOLEAN; }
-"char"          { return CHAR; }
+"char"          { return CHAR;    }
 "begin"         { return BEGIN_T; }
-"end"           { return END; }
-"if"            { return IF; }
-"then"          { return THEN; }
-"else"          { return ELSE; }
-"do"            { return DO; }
-"while"         { return WHILE; }
-"until"         { return UNTIL; }
-"read"          { return READ; }
-"write"         { return WRITE; }
+"end"           { return END;     }
+"if"            { return IF;      }
+"then"          { return THEN;    }
+"else"          { return ELSE;    }
+"do"            { return DO;      }
+"while"         { return WHILE;   }
+"until"         { return UNTIL;   }
+"read"          { return READ;    }
+"write"         { return WRITE;   }
 
 {integer_constant}  { return INTEGER_CONSTANT; }
-{real_constant}     { return REAL_CONSTANT; }
-{char_constant}     { return CHAR_CONSTANT; }
+{real_constant}     { return REAL_CONSTANT;    }
+{char_constant}     { return CHAR_CONSTANT;    }
 "false"             { return BOOLEAN_CONSTANT; }
 "true"              { return BOOLEAN_CONSTANT; }
 
