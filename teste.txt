@@ -1,0 +1,11 @@
+program teste01;
+
+a: integer;
+
+begin
+
+a = 1 + 1.2E+2;
+
+write(a);
+
+end

@@ -1,33 +1,19 @@
-# Makefile
+all:
+	clear
+	lex cp.lex
+	gcc cp.c lex.yy.c -o cp
+	./cp < teste2.txt
 
-OBJS	= bison.o lex.o main.o
+build:
+	lex cp.lex
+	gcc cp.c lex.yy.c -o cp
 
-CC	= gcc
-CFLAGS	= -g -Wall -ansi -pedantic
+run:
+	./cp < teste2.txt
 
-cp:		$(OBJS)
-		$(CC) $(CFLAGS) $(OBJS) -o cp -lfl
+l:
+	lex cp.lex
 
-lex.o:		lex.c
-		$(CC) $(CFLAGS) -c lex.c -o lex.o
+c: 
+	gcc cp.c lex.yy.c -o cp
 
-lex.c:		cp.lex 
-		flex cp.lex
-		cp lex.yy.c lex.c
-
-bison.o:	bison.c
-		$(CC) $(CFLAGS) -c bison.c -o bison.o
-
-bison.c:	cp.y
-		bison -d -v cp.y
-		cp cp.tab.c bison.c
-		cmp -s cp.tab.h tok.h || cp cp.tab.h tok.h
-
-main.o:		main.cc
-			$(CC) $(CFLAGS) -o main.o -c main.cc 
-
-lex.o yac.o main.o	: heading.h
-lex.o main.o		: tok.h
-
-clean:
-	rm -f *.o *~ lex.c lex.yy.c bison.c tok.h cp.tab.c cp.tab.h cp.output cp
