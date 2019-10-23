@@ -18,11 +18,6 @@
 
 %start program
 
-%token	<int_t>		  INTEGER_CONSTANT
-%token	<double_t>	REAL_CONSTANT
-%token	<string_t>	CHAR_CONSTANT
-%token	<int_t>		  BOOLEAN_CONSTANT
-%token  <string_t>	IDENTIFIER
 
 %token	PROGRAM
 %token	INTEGER
@@ -39,25 +34,32 @@
 %token	UNTIL
 %token	READ
 %token	WRITE
+
+%token	<int_t>		  INTEGER_CONSTANT
+%token	<double_t>	REAL_CONSTANT
+%token	<string_t>	CHAR_CONSTANT
+%token	<int_t>		  BOOLEAN_CONSTANT
+%token  <string_t>	IDENTIFIER
+
+%token  T_DOISP
+%token  T_PVIRG
+%token  T_VIRG
+%token  T_IGUAL
+%token  T_ABRE
+%token  T_FECHA
+
+%token  RELOP
+%token  NOT
+%token  ADDOP
 %token	MENOS
-%token	NOT
+%token  MULOP
 
-%token T_DOISP
-%token T_PVIRG
-%token T_VIRG
-%token T_IGUAL
-%token T_ABRE
-%token T_FECHA
-
-%left	  RELOP
-%left	  ADDOP
-%left	  MENOS
-%left	  MULOP
-%right	NOT
-%right	T_IGUAL
+%left   T_IGUAL MENOS
+%right  RELOP ADDOP MULOP
 
 %%
-program: 	PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { printf("\nPRGM"); };;
+program:      PROGRAM IDENTIFIER T_PVIRG {printf("\nNICE");}
+              | PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { printf("\nPRGM"); };;
 
 decl_list:    decl_list T_PVIRG decl
 		          | decl;

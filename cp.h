@@ -31,4 +31,4 @@
 #define MENOS 				31
 #define MULOP 				32
 
-#define DELIM				33
+//#define DELIM				33

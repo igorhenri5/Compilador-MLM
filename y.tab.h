@@ -45,70 +45,70 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    INTEGER_CONSTANT = 258,
-    REAL_CONSTANT = 259,
-    CHAR_CONSTANT = 260,
-    BOOLEAN_CONSTANT = 261,
-    IDENTIFIER = 262,
-    PROGRAM = 263,
-    INTEGER = 264,
-    REAL = 265,
-    BOOLEAN = 266,
-    CHAR = 267,
-    BEGIN_T = 268,
-    END = 269,
-    IF = 270,
-    THEN = 271,
-    ELSE = 272,
-    DO = 273,
-    WHILE = 274,
-    UNTIL = 275,
-    READ = 276,
-    WRITE = 277,
-    MENOS = 278,
-    NOT = 279,
-    T_DOISP = 280,
-    T_PVIRG = 281,
-    T_VIRG = 282,
-    T_IGUAL = 283,
-    T_ABRE = 284,
-    T_FECHA = 285,
-    RELOP = 286,
-    ADDOP = 287,
+    PROGRAM = 258,
+    INTEGER = 259,
+    REAL = 260,
+    BOOLEAN = 261,
+    CHAR = 262,
+    BEGIN_T = 263,
+    END = 264,
+    IF = 265,
+    THEN = 266,
+    ELSE = 267,
+    DO = 268,
+    WHILE = 269,
+    UNTIL = 270,
+    READ = 271,
+    WRITE = 272,
+    INTEGER_CONSTANT = 273,
+    REAL_CONSTANT = 274,
+    CHAR_CONSTANT = 275,
+    BOOLEAN_CONSTANT = 276,
+    IDENTIFIER = 277,
+    T_DOISP = 278,
+    T_PVIRG = 279,
+    T_VIRG = 280,
+    T_IGUAL = 281,
+    T_ABRE = 282,
+    T_FECHA = 283,
+    RELOP = 284,
+    NOT = 285,
+    ADDOP = 286,
+    MENOS = 287,
     MULOP = 288
   };
 #endif
 /* Tokens.  */
-#define INTEGER_CONSTANT 258
-#define REAL_CONSTANT 259
-#define CHAR_CONSTANT 260
-#define BOOLEAN_CONSTANT 261
-#define IDENTIFIER 262
-#define PROGRAM 263
-#define INTEGER 264
-#define REAL 265
-#define BOOLEAN 266
-#define CHAR 267
-#define BEGIN_T 268
-#define END 269
-#define IF 270
-#define THEN 271
-#define ELSE 272
-#define DO 273
-#define WHILE 274
-#define UNTIL 275
-#define READ 276
-#define WRITE 277
-#define MENOS 278
-#define NOT 279
-#define T_DOISP 280
-#define T_PVIRG 281
-#define T_VIRG 282
-#define T_IGUAL 283
-#define T_ABRE 284
-#define T_FECHA 285
-#define RELOP 286
-#define ADDOP 287
+#define PROGRAM 258
+#define INTEGER 259
+#define REAL 260
+#define BOOLEAN 261
+#define CHAR 262
+#define BEGIN_T 263
+#define END 264
+#define IF 265
+#define THEN 266
+#define ELSE 267
+#define DO 268
+#define WHILE 269
+#define UNTIL 270
+#define READ 271
+#define WRITE 272
+#define INTEGER_CONSTANT 273
+#define REAL_CONSTANT 274
+#define CHAR_CONSTANT 275
+#define BOOLEAN_CONSTANT 276
+#define IDENTIFIER 277
+#define T_DOISP 278
+#define T_PVIRG 279
+#define T_VIRG 280
+#define T_IGUAL 281
+#define T_ABRE 282
+#define T_FECHA 283
+#define RELOP 284
+#define NOT 285
+#define ADDOP 286
+#define MENOS 287
 #define MULOP 288
 
 /* Value type.  */
