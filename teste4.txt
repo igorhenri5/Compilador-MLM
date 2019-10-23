@@ -3,5 +3,7 @@ program teste01;
 a: integer;
 
 begin
+	
+read(a)
 
 end

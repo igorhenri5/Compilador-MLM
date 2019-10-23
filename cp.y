@@ -60,11 +60,11 @@
 %%
 program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { printf("\nPRGM"); };
 
-decl_list:    decl_list T_PVIRG decl
+decl_list:    decl_list decl
 		          | decl;
 
 decl: 		    |
-              ident_list T_DOISP type;
+              ident_list T_DOISP type T_PVIRG;
 
 ident_list:   ident_list T_VIRG IDENTIFIER
 			        | IDENTIFIER;
@@ -76,18 +76,18 @@ type : 	      INTEGER     { printf("\nt_INTEGER"); }
 
 compound_stmt: BEGIN_T stmt_list END;
 
-stmt_list:    stmt_list T_PVIRG stmt
-			        | stmt;
+stmt_list:    stmt_list T_PVIRG stmt {printf("STMTLIST FULL");}
+			        | stmt {printf("STMT");};
 
 stmt:       	
-              | assign_stmt
+              | assign_stmt {printf("ASSIGN");}
               | if_stmt
               | loop_stmt
               | read_stmt
               | write_stmt
               | compound_stmt;
 
-assign_stmt: IDENTIFIER T_IGUAL expr;
+assign_stmt:  IDENTIFIER T_IGUAL expr;
 
 if_stmt: 	    IF cond THEN stmt               { printf("\n_IF");      }
           	  | IF cond THEN stmt ELSE stmt   { printf("\n_IF_ELSE"); };
@@ -109,16 +109,16 @@ write_stmt:   WRITE T_ABRE expr_list T_FECHA  { printf("\nWRITE"); };
 expr_list: 	  expr
 			        | expr_list T_VIRG expr;
 
-expr: 		    simple_expr     { printf("\n_exp"); };
-			        | simple_expr RELOP simple_expr ;
+expr: 		    simple_expr                     { printf("\n_exp"); }
+			        | simple_expr RELOP simple_expr;
 
 simple_expr: 	term
-			        | simple_expr ADDOP term ;
+			        | simple_expr ADDOP term;
 
 term: 		    factor_a
-			        | term MULOP factor_a ;
+			        | term MULOP factor_a;
 
-factor_a: 	  MENOS factor ;
+factor_a: 	  MENOS factor 
 			        | factor;
 
 factor: 	    IDENTIFIER               { printf("\n_IDENTIFIER"); };
@@ -162,5 +162,5 @@ int main(){
 }
 
 void yyerror(char *s){
-  printf("ERR - %s",s);
+  printf("\nERR - %s",s);
 }
