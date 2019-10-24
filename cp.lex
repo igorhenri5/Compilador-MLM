@@ -35,11 +35,11 @@ char_constant           "'"{ascii}"'"
 "read"          { return READ;    }
 "write"         { return WRITE;   }
 
-{integer_constant}  { return INTEGER_CONSTANT; }
-{real_constant}     { return REAL_CONSTANT;    }
-{char_constant}     { return CHAR_CONSTANT;    }
-"false"             { return BOOLEAN_CONSTANT; }
-"true"              { return BOOLEAN_CONSTANT; }
+{integer_constant}  { yylval.int_t 		= atoi(yytext); return INTEGER_CONSTANT; }
+{real_constant}     { yylval.double_t	= atof(yytext); return REAL_CONSTANT;    }
+{char_constant}     { yylval.char_t 	= yytext[0]; 	return CHAR_CONSTANT;    }
+"false"             { yylval.bool_t 	= 0; 	  		return BOOLEAN_CONSTANT; }
+"true"              { yylval.bool_t 	= 1; 	  		return BOOLEAN_CONSTANT; }
 
 ":"     { return T_DOISP; }
 ";"     { return T_PVIRG; }
@@ -48,28 +48,30 @@ char_constant           "'"{ascii}"'"
 "("     { return T_ABRE;  }
 ")"     { return T_FECHA; }
 
-"="     { return RELOP; }
-"<"     { return RELOP; }
-"<="    { return RELOP; }
-">"     { return RELOP; }
-">="    { return RELOP; }
-"!="    { return RELOP; }
-"NOT"   { return NOT;   }
+"=" 	{ yylval.string_t = "=";  return RELOP; }
+"<" 	{ yylval.string_t = "<";  return RELOP; }
+"<=" 	{ yylval.string_t = "<="; return RELOP; }
+">" 	{ yylval.string_t = ">";  return RELOP; }
+">=" 	{ yylval.string_t = ">="; return RELOP; }
+"!=" 	{ yylval.string_t = "!="; return RELOP; }
 
-"+"     { return ADDOP; }
-"or"    { return ADDOP; }
+"NOT"   { yylval.string_t = "NOT"; return NOT;  }
+
+"+"     {  yylval.string_t = "+";  return ADDOP; }
+"or"    {  yylval.string_t = "or"; return ADDOP; }
+
 "-"     { return MENOS; }
 
-"*"     {  return MULOP; }
-"/"     {  return MULOP; }
-"div"   {  return MULOP; }
-"mod"   {  return MULOP; }
-"and"   {  return MULOP; }
+"*"		{ yylval.string_t = "*"; return MULOP; }
+"/" 	{ yylval.string_t = "/"; return MULOP; }
+"div"	{ yylval.string_t = "div"; return MULOP; }
+"mod"	{ yylval.string_t = "mod"; return MULOP; }
+"and"	{ yylval.string_t = "and"; return MULOP; }
 
-{identifier} { return IDENTIFIER; }
+{identifier} { yylval.string_t = yytext;  return IDENTIFIER; }
 
-{stoken}       {  		 	 ; }
-.       	   {             ; }
+{stoken}     { ;}
+.       	 { ;}
 
 %%
 

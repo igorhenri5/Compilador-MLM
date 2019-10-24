@@ -64,16 +64,23 @@
 /* Copy the first part of user declarations.  */
 #line 1 "cp.y" /* yacc.c:339  */
 
-  void yyerror(char *s);
-  int yylex();
   #include <stdio.h>
   #include <stdlib.h>
   #include <ctype.h>
+
+  void yyerror(char *s);
+  int yylex();
+
+  //unordered_map<std::string,std::string> symbolTable;
+  //           Chave       Valor (castado)
+
+  //map.insert (std::make_pair<std::string,double>("eggs",6.0));
+
   int symbols[52];
   int symbolVal(char symbol);
   void updateSymbolVal(char symbol, int val);
 
-#line 77 "y.tab.c" /* yacc.c:339  */
+#line 84 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -124,9 +131,9 @@ extern int yydebug;
     READ = 271,
     WRITE = 272,
     INTEGER_CONSTANT = 273,
-    REAL_CONSTANT = 274,
-    CHAR_CONSTANT = 275,
-    BOOLEAN_CONSTANT = 276,
+    BOOLEAN_CONSTANT = 274,
+    REAL_CONSTANT = 275,
+    CHAR_CONSTANT = 276,
     IDENTIFIER = 277,
     T_DOISP = 278,
     T_PVIRG = 279,
@@ -158,9 +165,9 @@ extern int yydebug;
 #define READ 271
 #define WRITE 272
 #define INTEGER_CONSTANT 273
-#define REAL_CONSTANT 274
-#define CHAR_CONSTANT 275
-#define BOOLEAN_CONSTANT 276
+#define BOOLEAN_CONSTANT 274
+#define REAL_CONSTANT 275
+#define CHAR_CONSTANT 276
 #define IDENTIFIER 277
 #define T_DOISP 278
 #define T_PVIRG 279
@@ -179,14 +186,15 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 12 "cp.y" /* yacc.c:355  */
+#line 19 "cp.y" /* yacc.c:355  */
  
-  int   int_t;
-  float float_t;
-  char  char_t;
-  char* string_t;
+  int    int_t;
+  int    bool_t;
+  double double_t;
+  char   char_t;
+  char*  string_t;
 
-#line 190 "y.tab.c" /* yacc.c:355  */
+#line 198 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -203,7 +211,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 207 "y.tab.c" /* yacc.c:358  */
+#line 215 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -503,12 +511,12 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    61,    61,    63,    64,    66,    67,    69,    70,    72,
-      73,    74,    75,    77,    79,    80,    82,    83,    84,    85,
-      86,    87,    88,    90,    92,    93,    95,    97,    99,   100,
-     102,   103,   105,   107,   109,   110,   112,   113,   115,   116,
-     118,   119,   121,   122,   124,   125,   126,   127,   129,   130,
-     131,   132
+       0,    69,    69,    71,    72,    74,    75,    77,    78,    80,
+      81,    82,    83,    85,    87,    88,    90,    91,    92,    93,
+      94,    95,    96,    98,   100,   101,   103,   105,   107,   108,
+     110,   111,   113,   115,   117,   118,   120,   121,   123,   124,
+     126,   127,   129,   130,   132,   133,   134,   135,   137,   138,
+     139,   140
 };
 #endif
 
@@ -519,10 +527,10 @@ static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "PROGRAM", "INTEGER", "REAL", "BOOLEAN",
   "CHAR", "BEGIN_T", "END", "IF", "THEN", "ELSE", "DO", "WHILE", "UNTIL",
-  "READ", "WRITE", "INTEGER_CONSTANT", "REAL_CONSTANT", "CHAR_CONSTANT",
-  "BOOLEAN_CONSTANT", "IDENTIFIER", "T_DOISP", "T_PVIRG", "T_VIRG",
-  "T_IGUAL", "T_ABRE", "T_FECHA", "RELOP", "NOT", "ADDOP", "MENOS",
-  "MULOP", "$accept", "program", "decl_list", "decl", "ident_list", "type",
+  "READ", "WRITE", "INTEGER_CONSTANT", "BOOLEAN_CONSTANT", "REAL_CONSTANT",
+  "CHAR_CONSTANT", "IDENTIFIER", "T_DOISP", "T_PVIRG", "T_VIRG", "T_IGUAL",
+  "T_ABRE", "T_FECHA", "RELOP", "NOT", "ADDOP", "MENOS", "MULOP",
+  "$accept", "program", "decl_list", "decl", "ident_list", "type",
   "compound_stmt", "stmt_list", "stmt", "assign_stmt", "if_stmt", "cond",
   "loop_stmt", "stmt_prefix", "stmt_suffix", "read_stmt", "write_stmt",
   "expr_list", "expr", "simple_expr", "term", "factor_a", "factor",
@@ -575,7 +583,7 @@ static const yytype_uint8 yydefact[] =
        0,     0,     0,     0,     1,     5,     8,     0,     4,     0,
       16,     3,     2,     0,     0,     0,     0,     0,     0,     0,
        0,    16,    15,     0,    18,     0,     0,     0,     0,     9,
-      10,    11,    12,     0,     7,    48,    49,    50,    51,    44,
+      10,    11,    12,     0,     7,    48,    51,    49,    50,    44,
        0,     0,     0,     0,    26,    36,    38,    40,    43,    45,
       29,     0,     0,     0,    22,    13,    14,    17,    19,    16,
       20,    21,     6,     0,    47,    42,    16,     0,     0,     0,
@@ -1341,91 +1349,91 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 61 "cp.y" /* yacc.c:1646  */
+#line 69 "cp.y" /* yacc.c:1646  */
     { printf("\nPRGM"); }
-#line 1347 "y.tab.c" /* yacc.c:1646  */
+#line 1355 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 72 "cp.y" /* yacc.c:1646  */
+#line 80 "cp.y" /* yacc.c:1646  */
     { printf("\nt_INTEGER"); }
-#line 1353 "y.tab.c" /* yacc.c:1646  */
+#line 1361 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 73 "cp.y" /* yacc.c:1646  */
+#line 81 "cp.y" /* yacc.c:1646  */
     { printf("\nt_REAL");    }
-#line 1359 "y.tab.c" /* yacc.c:1646  */
+#line 1367 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 74 "cp.y" /* yacc.c:1646  */
+#line 82 "cp.y" /* yacc.c:1646  */
     { printf("\nt_BOOLEAN"); }
-#line 1365 "y.tab.c" /* yacc.c:1646  */
+#line 1373 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 75 "cp.y" /* yacc.c:1646  */
+#line 83 "cp.y" /* yacc.c:1646  */
     { printf("\nt_CHAR");    }
-#line 1371 "y.tab.c" /* yacc.c:1646  */
+#line 1379 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 79 "cp.y" /* yacc.c:1646  */
+#line 87 "cp.y" /* yacc.c:1646  */
     {printf("STMTLIST FULL");}
-#line 1377 "y.tab.c" /* yacc.c:1646  */
+#line 1385 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 80 "cp.y" /* yacc.c:1646  */
+#line 88 "cp.y" /* yacc.c:1646  */
     {printf("STMT");}
-#line 1383 "y.tab.c" /* yacc.c:1646  */
+#line 1391 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 83 "cp.y" /* yacc.c:1646  */
+#line 91 "cp.y" /* yacc.c:1646  */
     {printf("ASSIGN");}
-#line 1389 "y.tab.c" /* yacc.c:1646  */
+#line 1397 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 92 "cp.y" /* yacc.c:1646  */
+#line 100 "cp.y" /* yacc.c:1646  */
     { printf("\n_IF");      }
-#line 1395 "y.tab.c" /* yacc.c:1646  */
+#line 1403 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 93 "cp.y" /* yacc.c:1646  */
+#line 101 "cp.y" /* yacc.c:1646  */
     { printf("\n_IF_ELSE"); }
-#line 1401 "y.tab.c" /* yacc.c:1646  */
+#line 1409 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 105 "cp.y" /* yacc.c:1646  */
+#line 113 "cp.y" /* yacc.c:1646  */
     { printf("\nREAD");  }
-#line 1407 "y.tab.c" /* yacc.c:1646  */
+#line 1415 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 107 "cp.y" /* yacc.c:1646  */
+#line 115 "cp.y" /* yacc.c:1646  */
     { printf("\nWRITE"); }
-#line 1413 "y.tab.c" /* yacc.c:1646  */
+#line 1421 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 112 "cp.y" /* yacc.c:1646  */
+#line 120 "cp.y" /* yacc.c:1646  */
     { printf("\n_exp"); }
-#line 1419 "y.tab.c" /* yacc.c:1646  */
+#line 1427 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 124 "cp.y" /* yacc.c:1646  */
+#line 132 "cp.y" /* yacc.c:1646  */
     { printf("\n_IDENTIFIER"); }
-#line 1425 "y.tab.c" /* yacc.c:1646  */
+#line 1433 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1429 "y.tab.c" /* yacc.c:1646  */
+#line 1437 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1653,7 +1661,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 134 "cp.y" /* yacc.c:1906  */
+#line 142 "cp.y" /* yacc.c:1906  */
 
 
 int computeSymbolIndex(char token){

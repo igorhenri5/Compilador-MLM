@@ -875,28 +875,28 @@ YY_RULE_SETUP
 case 16:
 YY_RULE_SETUP
 #line 38 "cp.lex"
-{ return INTEGER_CONSTANT; }
+{ yylval.int_t 		= atoi(yytext); return INTEGER_CONSTANT; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 39 "cp.lex"
-{ return REAL_CONSTANT;    }
+{ yylval.double_t	= atof(yytext); return REAL_CONSTANT;    }
 	YY_BREAK
 case 18:
 /* rule 18 can match eol */
 YY_RULE_SETUP
 #line 40 "cp.lex"
-{ return CHAR_CONSTANT;    }
+{ yylval.char_t 	= yytext[0]; 	return CHAR_CONSTANT;    }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 41 "cp.lex"
-{ return BOOLEAN_CONSTANT; }
+{ yylval.bool_t 	= 0; 	  		return BOOLEAN_CONSTANT; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 42 "cp.lex"
-{ return BOOLEAN_CONSTANT; }
+{ yylval.bool_t 	= 1; 	  		return BOOLEAN_CONSTANT; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
@@ -931,97 +931,97 @@ YY_RULE_SETUP
 case 27:
 YY_RULE_SETUP
 #line 51 "cp.lex"
-{ return RELOP; }
+{ yylval.string_t = "=";  return RELOP; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 52 "cp.lex"
-{ return RELOP; }
+{ yylval.string_t = "<";  return RELOP; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 53 "cp.lex"
-{ return RELOP; }
+{ yylval.string_t = "<="; return RELOP; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 54 "cp.lex"
-{ return RELOP; }
+{ yylval.string_t = ">";  return RELOP; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 55 "cp.lex"
-{ return RELOP; }
+{ yylval.string_t = ">="; return RELOP; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 56 "cp.lex"
-{ return RELOP; }
+{ yylval.string_t = "!="; return RELOP; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 57 "cp.lex"
-{ return NOT;   }
+#line 58 "cp.lex"
+{ yylval.string_t = "NOT"; return NOT;  }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 59 "cp.lex"
-{ return ADDOP; }
+#line 60 "cp.lex"
+{  yylval.string_t = "+";  return ADDOP; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 60 "cp.lex"
-{ return ADDOP; }
+#line 61 "cp.lex"
+{  yylval.string_t = "or"; return ADDOP; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 61 "cp.lex"
+#line 63 "cp.lex"
 { return MENOS; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 63 "cp.lex"
-{  return MULOP; }
+#line 65 "cp.lex"
+{ yylval.string_t = "*"; return MULOP; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 64 "cp.lex"
-{  return MULOP; }
+#line 66 "cp.lex"
+{ yylval.string_t = "/"; return MULOP; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 65 "cp.lex"
-{  return MULOP; }
+#line 67 "cp.lex"
+{ yylval.string_t = "div"; return MULOP; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 66 "cp.lex"
-{  return MULOP; }
+#line 68 "cp.lex"
+{ yylval.string_t = "mod"; return MULOP; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 67 "cp.lex"
-{  return MULOP; }
+#line 69 "cp.lex"
+{ yylval.string_t = "and"; return MULOP; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 69 "cp.lex"
-{ return IDENTIFIER; }
+#line 71 "cp.lex"
+{ yylval.string_t = yytext;  return IDENTIFIER; }
 	YY_BREAK
 case 43:
 /* rule 43 can match eol */
 YY_RULE_SETUP
-#line 71 "cp.lex"
-{  		 	 ; }
+#line 73 "cp.lex"
+{ ;}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 72 "cp.lex"
-{             ; }
+#line 74 "cp.lex"
+{ ;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 74 "cp.lex"
+#line 76 "cp.lex"
 ECHO;
 	YY_BREAK
 #line 1027 "lex.yy.c"
@@ -2029,7 +2029,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 74 "cp.lex"
+#line 76 "cp.lex"
 
 
 int yywrap(void){

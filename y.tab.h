@@ -61,9 +61,9 @@ extern int yydebug;
     READ = 271,
     WRITE = 272,
     INTEGER_CONSTANT = 273,
-    REAL_CONSTANT = 274,
-    CHAR_CONSTANT = 275,
-    BOOLEAN_CONSTANT = 276,
+    BOOLEAN_CONSTANT = 274,
+    REAL_CONSTANT = 275,
+    CHAR_CONSTANT = 276,
     IDENTIFIER = 277,
     T_DOISP = 278,
     T_PVIRG = 279,
@@ -95,9 +95,9 @@ extern int yydebug;
 #define READ 271
 #define WRITE 272
 #define INTEGER_CONSTANT 273
-#define REAL_CONSTANT 274
-#define CHAR_CONSTANT 275
-#define BOOLEAN_CONSTANT 276
+#define BOOLEAN_CONSTANT 274
+#define REAL_CONSTANT 275
+#define CHAR_CONSTANT 276
 #define IDENTIFIER 277
 #define T_DOISP 278
 #define T_PVIRG 279
@@ -116,14 +116,15 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 12 "cp.y" /* yacc.c:1909  */
+#line 19 "cp.y" /* yacc.c:1909  */
  
-  int   int_t;
-  float float_t;
-  char  char_t;
-  char* string_t;
+  int    int_t;
+  int    bool_t;
+  double double_t;
+  char   char_t;
+  char*  string_t;
 
-#line 127 "y.tab.h" /* yacc.c:1909  */
+#line 128 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

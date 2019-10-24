@@ -1,19 +1,27 @@
 %{
-  void yyerror(char *s);
-  int yylex();
   #include <stdio.h>
   #include <stdlib.h>
   #include <ctype.h>
+  //#include <unordered_map>
+  void yyerror(char *s);
+  int yylex();
+
+  //unordered_map<std::string,std::string> symbolTable;
+  //           Chave       Valor (castado)
+
+  //map.insert (std::make_pair<std::string,double>("eggs",6.0));
+
   int symbols[52];
   int symbolVal(char symbol);
   void updateSymbolVal(char symbol, int val);
 %}
 
 %union{ 
-  int   int_t;
-  float float_t;
-  char  char_t;
-  char* string_t;
+  int    int_t;
+  int    bool_t;
+  double double_t;
+  char   char_t;
+  char*  string_t;
 }
 
 %start program
@@ -36,9 +44,9 @@
 %token  WRITE
 
 %token  <int_t>     INTEGER_CONSTANT
+%token  <bool_t>    BOOLEAN_CONSTANT
 %token  <double_t>  REAL_CONSTANT
 %token  <string_t>  CHAR_CONSTANT
-%token  <int_t>     BOOLEAN_CONSTANT
 %token  <string_t>  IDENTIFIER
 
 %token  T_DOISP
