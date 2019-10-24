@@ -118,10 +118,10 @@ union YYSTYPE
 {
 #line 12 "cp.y" /* yacc.c:1909  */
  
-  int		int_t;
-  float	float_t;
-  char	char_t;
-  char*	string_t;
+  int   int_t;
+  float float_t;
+  char  char_t;
+  char* string_t;
 
 #line 127 "y.tab.h" /* yacc.c:1909  */
 };

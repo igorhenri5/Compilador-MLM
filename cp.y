@@ -10,36 +10,36 @@
 %}
 
 %union{ 
-  int		int_t;
-  float	float_t;
-  char	char_t;
-  char*	string_t;
+  int   int_t;
+  float float_t;
+  char  char_t;
+  char* string_t;
 }
 
 %start program
 
 
-%token	PROGRAM
-%token	INTEGER
-%token	REAL
-%token	BOOLEAN
-%token	CHAR
-%token	BEGIN_T
-%token	END
-%token	IF
-%token	THEN
-%token	ELSE
-%token	DO
-%token	WHILE
-%token	UNTIL
-%token	READ
-%token	WRITE
+%token  PROGRAM
+%token  INTEGER
+%token  REAL
+%token  BOOLEAN
+%token  CHAR
+%token  BEGIN_T
+%token  END
+%token  IF
+%token  THEN
+%token  ELSE
+%token  DO
+%token  WHILE
+%token  UNTIL
+%token  READ
+%token  WRITE
 
-%token	<int_t>		  INTEGER_CONSTANT
-%token	<double_t>	REAL_CONSTANT
-%token	<string_t>	CHAR_CONSTANT
-%token	<int_t>		  BOOLEAN_CONSTANT
-%token  <string_t>	IDENTIFIER
+%token  <int_t>     INTEGER_CONSTANT
+%token  <double_t>  REAL_CONSTANT
+%token  <string_t>  CHAR_CONSTANT
+%token  <int_t>     BOOLEAN_CONSTANT
+%token  <string_t>  IDENTIFIER
 
 %token  T_DOISP
 %token  T_PVIRG
@@ -51,7 +51,7 @@
 %token  RELOP
 %token  NOT
 %token  ADDOP
-%token	MENOS
+%token  MENOS
 %token  MULOP
 
 %left   T_IGUAL MENOS
@@ -61,72 +61,72 @@
 program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { printf("\nPRGM"); };
 
 decl_list:    decl_list decl
-		          | decl;
+              | decl;
 
-decl: 		    |
+decl:         |
               ident_list T_DOISP type T_PVIRG;
 
 ident_list:   ident_list T_VIRG IDENTIFIER
-			        | IDENTIFIER;
+              | IDENTIFIER;
 
-type : 	      INTEGER     { printf("\nt_INTEGER"); }
+type :        INTEGER     { printf("\nt_INTEGER"); }
               | REAL      { printf("\nt_REAL");    }
               | BOOLEAN   { printf("\nt_BOOLEAN"); }
               | CHAR      { printf("\nt_CHAR");    };
 
 compound_stmt: BEGIN_T stmt_list END;
 
-stmt_list:    stmt_list T_PVIRG stmt {printf("STMTLIST FULL");}
-			        | stmt {printf("STMT");};
+stmt_list:    stmt_list stmt         {printf("STMTLIST FULL");}
+              | stmt                 {printf("STMT");};
 
-stmt:       	
-              | assign_stmt {printf("ASSIGN");}
+stmt:         
+              | assign_stmt   T_PVIRG {printf("ASSIGN");}
               | if_stmt
-              | loop_stmt
-              | read_stmt
-              | write_stmt
-              | compound_stmt;
+              | loop_stmt     T_PVIRG
+              | read_stmt     T_PVIRG
+              | write_stmt    T_PVIRG
+              | compound_stmt T_PVIRG;
 
 assign_stmt:  IDENTIFIER T_IGUAL expr;
 
-if_stmt: 	    IF cond THEN stmt               { printf("\n_IF");      }
-          	  | IF cond THEN stmt ELSE stmt   { printf("\n_IF_ELSE"); };
+if_stmt:      IF cond THEN stmt               { printf("\n_IF");      }
+              | IF cond THEN stmt ELSE stmt   { printf("\n_IF_ELSE"); };
 
 cond:         expr;
 
 loop_stmt:    stmt_prefix DO stmt_list stmt_suffix;
 
-stmt_prefix: 	
-				      | WHILE cond;
+stmt_prefix:  
+              | WHILE cond;
 
-stmt_suffix: 	UNTIL cond
-      	      | END;
+stmt_suffix:  UNTIL cond
+              | END;
 
 read_stmt:    READ T_ABRE ident_list T_FECHA  { printf("\nREAD");  }
 
 write_stmt:   WRITE T_ABRE expr_list T_FECHA  { printf("\nWRITE"); };
 
-expr_list: 	  expr
-			        | expr_list T_VIRG expr;
+expr_list:    expr
+              | expr_list T_VIRG expr;
 
-expr: 		    simple_expr                     { printf("\n_exp"); }
-			        | simple_expr RELOP simple_expr;
+expr:         simple_expr                     { printf("\n_exp"); }
+              | simple_expr RELOP simple_expr;
 
-simple_expr: 	term
-			        | simple_expr ADDOP term;
+simple_expr:  term
+              | simple_expr ADDOP term;
 
-term: 		    factor_a
-			        | term MULOP factor_a;
+term:         factor_a
+              | term MULOP factor_a;
 
-factor_a: 	  MENOS factor 
-			        | factor;
+factor_a:     MENOS factor 
+              | factor;
 
-factor: 	    IDENTIFIER               { printf("\n_IDENTIFIER"); };
+factor:       IDENTIFIER               { printf("\n_IDENTIFIER"); };
               | constant
               | T_ABRE expr T_FECHA
               | NOT factor;
 
-constant: 	  INTEGER_CONSTANT 
+constant:     INTEGER_CONSTANT 
               | REAL_CONSTANT
               | CHAR_CONSTANT
               | BOOLEAN_CONSTANT;
