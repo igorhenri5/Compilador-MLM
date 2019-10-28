@@ -23,6 +23,6 @@
 y:
 	yacc -d cp.y
 	lex cp.lex
-	gcc lex.yy.c y.tab.c -o cply
-	
+	#gcc lex.yy.c y.tab.c -o cply
+	g++ lex.yy.c y.tab.c -o cply	
 	./cply < teste4.txt

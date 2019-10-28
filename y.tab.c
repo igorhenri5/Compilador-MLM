@@ -67,20 +67,26 @@
   #include <stdio.h>
   #include <stdlib.h>
   #include <ctype.h>
+  #include <iostream>
+  #include <unordered_map>
+
+  using namespace std;
 
   void yyerror(char *s);
   int yylex();
 
-  //unordered_map<std::string,std::string> symbolTable;
-  //           Chave       Valor (castado)
+  std::unordered_map<std::string,std::string> symbolTable;
+  //                       Chave       Valor 
 
   //map.insert (std::make_pair<std::string,double>("eggs",6.0));
 
-  int symbols[52];
-  int symbolVal(char symbol);
-  void updateSymbolVal(char symbol, int val);
+  //int symbols[52];
+  void updateSymbolVal(char* symbol, char* val);
+  void printSymbolTable();
 
-#line 84 "y.tab.c" /* yacc.c:339  */
+  std::string aux;
+
+#line 90 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -186,7 +192,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 19 "cp.y" /* yacc.c:355  */
+#line 25 "cp.y" /* yacc.c:355  */
  
   int    int_t;
   int    bool_t;
@@ -194,7 +200,7 @@ union YYSTYPE
   char   char_t;
   char*  string_t;
 
-#line 198 "y.tab.c" /* yacc.c:355  */
+#line 204 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -211,7 +217,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 215 "y.tab.c" /* yacc.c:358  */
+#line 221 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -511,12 +517,12 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    69,    69,    71,    72,    74,    75,    77,    78,    80,
-      81,    82,    83,    85,    87,    88,    90,    91,    92,    93,
-      94,    95,    96,    98,   100,   101,   103,   105,   107,   108,
-     110,   111,   113,   115,   117,   118,   120,   121,   123,   124,
-     126,   127,   129,   130,   132,   133,   134,   135,   137,   138,
-     139,   140
+       0,    74,    74,    76,    77,    79,    80,    82,    83,    85,
+      86,    87,    88,    90,    92,    93,    95,    96,    97,    98,
+      99,   100,   101,   103,   105,   106,   108,   110,   112,   113,
+     115,   116,   118,   120,   122,   123,   125,   126,   128,   129,
+     131,   132,   134,   135,   137,   138,   139,   140,   142,   143,
+     144,   145
 };
 #endif
 
@@ -1349,91 +1355,103 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 69 "cp.y" /* yacc.c:1646  */
-    { printf("\nPRGM"); }
-#line 1355 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 9:
-#line 80 "cp.y" /* yacc.c:1646  */
-    { printf("\nt_INTEGER"); }
+#line 74 "cp.y" /* yacc.c:1646  */
+    { /*updateSymbolVal($2," ");*/ printSymbolTable(); }
 #line 1361 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 10:
-#line 81 "cp.y" /* yacc.c:1646  */
-    { printf("\nt_REAL");    }
+  case 7:
+#line 82 "cp.y" /* yacc.c:1646  */
+    {updateSymbolVal((yyvsp[0].string_t),"?");}
 #line 1367 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 11:
-#line 82 "cp.y" /* yacc.c:1646  */
-    { printf("\nt_BOOLEAN"); }
+  case 8:
+#line 83 "cp.y" /* yacc.c:1646  */
+    {updateSymbolVal((yyvsp[0].string_t),"?");}
 #line 1373 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 12:
-#line 83 "cp.y" /* yacc.c:1646  */
-    { printf("\nt_CHAR");    }
+  case 9:
+#line 85 "cp.y" /* yacc.c:1646  */
+    { printf("\nt_INTEGER"); }
 #line 1379 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 14:
-#line 87 "cp.y" /* yacc.c:1646  */
-    {printf("STMTLIST FULL");}
+  case 10:
+#line 86 "cp.y" /* yacc.c:1646  */
+    { printf("\nt_REAL");    }
 #line 1385 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 15:
-#line 88 "cp.y" /* yacc.c:1646  */
-    {printf("STMT");}
+  case 11:
+#line 87 "cp.y" /* yacc.c:1646  */
+    { printf("\nt_BOOLEAN"); }
 #line 1391 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 17:
-#line 91 "cp.y" /* yacc.c:1646  */
-    {printf("ASSIGN");}
+  case 12:
+#line 88 "cp.y" /* yacc.c:1646  */
+    { printf("\nt_CHAR");    }
 #line 1397 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 24:
-#line 100 "cp.y" /* yacc.c:1646  */
-    { printf("\n_IF");      }
+  case 14:
+#line 92 "cp.y" /* yacc.c:1646  */
+    {printf("STMTLIST FULL");}
 #line 1403 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 25:
-#line 101 "cp.y" /* yacc.c:1646  */
-    { printf("\n_IF_ELSE"); }
+  case 15:
+#line 93 "cp.y" /* yacc.c:1646  */
+    {printf("STMT");}
 #line 1409 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 32:
-#line 113 "cp.y" /* yacc.c:1646  */
-    { printf("\nREAD");  }
+  case 17:
+#line 96 "cp.y" /* yacc.c:1646  */
+    {printf("ASSIGN");}
 #line 1415 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 33:
-#line 115 "cp.y" /* yacc.c:1646  */
-    { printf("\nWRITE"); }
+  case 24:
+#line 105 "cp.y" /* yacc.c:1646  */
+    { printf("\n_IF");      }
 #line 1421 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 36:
-#line 120 "cp.y" /* yacc.c:1646  */
-    { printf("\n_exp"); }
+  case 25:
+#line 106 "cp.y" /* yacc.c:1646  */
+    { printf("\n_IF_ELSE"); }
 #line 1427 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 44:
-#line 132 "cp.y" /* yacc.c:1646  */
-    { printf("\n_IDENTIFIER"); }
+  case 32:
+#line 118 "cp.y" /* yacc.c:1646  */
+    { printf("\nREAD");  }
 #line 1433 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 33:
+#line 120 "cp.y" /* yacc.c:1646  */
+    { printf("\nWRITE"); }
+#line 1439 "y.tab.c" /* yacc.c:1646  */
+    break;
 
-#line 1437 "y.tab.c" /* yacc.c:1646  */
+  case 36:
+#line 125 "cp.y" /* yacc.c:1646  */
+    { printf("\n_exp"); }
+#line 1445 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 44:
+#line 137 "cp.y" /* yacc.c:1646  */
+    { printf("\n_IDENTIFIER"); }
+#line 1451 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+
+#line 1455 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1661,34 +1679,22 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 142 "cp.y" /* yacc.c:1906  */
+#line 147 "cp.y" /* yacc.c:1906  */
 
 
-int computeSymbolIndex(char token){
-  int idx = -1;
-  if(islower(token)){
-    idx = token - 'a' + 26;
-  }else if(isupper(token)){
-    idx = token - 'A';
+void updateSymbolVal(char* symbol, char* val){
+  symbolTable[symbol] = val;
+}
+
+void printSymbolTable(){
+  cout << "\n\nSymbol Table" << endl; 
+  for(auto it = symbolTable.cbegin(); it != symbolTable.cend(); ++it){
+      std::cout << it->first << "  -  " << it->second << endl;
   }
-  return idx;
-}
-
-int symbolVal(char symbol){
-  int bucket = computeSymbolIndex(symbol);
-  return symbols[bucket];
-}
-
-void updateSymbolVal(char symbol, int val){
-  int bucket = computeSymbolIndex(symbol);
-  symbols[bucket] = val;
 }
 
 int main(){
   int i;
-  for(i=0; i<52; i++){
-    symbols[i]=0;
-  }
   return yyparse();
 }
 

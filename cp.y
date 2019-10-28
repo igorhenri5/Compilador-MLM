@@ -2,18 +2,24 @@
   #include <stdio.h>
   #include <stdlib.h>
   #include <ctype.h>
-  //#include <unordered_map>
+  #include <iostream>
+  #include <unordered_map>
+
+  using namespace std;
+
   void yyerror(char *s);
   int yylex();
 
-  //unordered_map<std::string,std::string> symbolTable;
-  //           Chave       Valor (castado)
+  std::unordered_map<std::string,std::string> symbolTable;
+  //                       Chave       Valor 
 
   //map.insert (std::make_pair<std::string,double>("eggs",6.0));
 
-  int symbols[52];
-  int symbolVal(char symbol);
-  void updateSymbolVal(char symbol, int val);
+  //int symbols[52];
+  void updateSymbolVal(char* symbol, char* val);
+  void printSymbolTable();
+
+  std::string aux;
 %}
 
 %union{ 
@@ -25,7 +31,6 @@
 }
 
 %start program
-
 
 %token  PROGRAM
 %token  INTEGER
@@ -66,7 +71,7 @@
 %right  RELOP ADDOP MULOP
 
 %%
-program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { printf("\nPRGM"); };
+program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { /*updateSymbolVal($2," ");*/ printSymbolTable(); };
 
 decl_list:    decl_list decl
               | decl;
@@ -74,8 +79,8 @@ decl_list:    decl_list decl
 decl:         |
               ident_list T_DOISP type T_PVIRG;
 
-ident_list:   ident_list T_VIRG IDENTIFIER
-              | IDENTIFIER;
+ident_list:   ident_list T_VIRG IDENTIFIER {updateSymbolVal($3,"?");}
+              | IDENTIFIER                 {updateSymbolVal($1,"?");};
 
 type :        INTEGER     { printf("\nt_INTEGER"); }
               | REAL      { printf("\nt_REAL");    }
@@ -84,8 +89,8 @@ type :        INTEGER     { printf("\nt_INTEGER"); }
 
 compound_stmt: BEGIN_T stmt_list END;
 
-stmt_list:    stmt_list stmt         {printf("STMTLIST FULL");}
-              | stmt                 {printf("STMT");};
+stmt_list:    stmt_list stmt          {printf("STMTLIST FULL");}
+              | stmt                  {printf("STMT");};
 
 stmt:         
               | assign_stmt   T_PVIRG {printf("ASSIGN");}
@@ -141,31 +146,19 @@ constant:     INTEGER_CONSTANT
 
 %%
 
-int computeSymbolIndex(char token){
-  int idx = -1;
-  if(islower(token)){
-    idx = token - 'a' + 26;
-  }else if(isupper(token)){
-    idx = token - 'A';
+void updateSymbolVal(char* symbol, char* val){
+  symbolTable[symbol] = val;
+}
+
+void printSymbolTable(){
+  cout << "\n\nSymbol Table" << endl; 
+  for(auto it = symbolTable.cbegin(); it != symbolTable.cend(); ++it){
+      std::cout << it->first << "  -  " << it->second << endl;
   }
-  return idx;
-}
-
-int symbolVal(char symbol){
-  int bucket = computeSymbolIndex(symbol);
-  return symbols[bucket];
-}
-
-void updateSymbolVal(char symbol, int val){
-  int bucket = computeSymbolIndex(symbol);
-  symbols[bucket] = val;
 }
 
 int main(){
   int i;
-  for(i=0; i<52; i++){
-    symbols[i]=0;
-  }
   return yyparse();
 }
 

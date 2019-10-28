@@ -1,6 +1,7 @@
 program teste01;
 
 a: integer;
+c: integer;
 
 begin
 
