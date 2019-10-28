@@ -1,7 +1,7 @@
 %{
+//  #include <stdlib.h>
+//  #include <ctype.h>
   #include <stdio.h>
-  #include <stdlib.h>
-  #include <ctype.h>
   #include <iostream>
   #include <unordered_map>
 
@@ -11,11 +11,7 @@
   int yylex();
 
   std::unordered_map<std::string,std::string> symbolTable;
-  //                       Chave       Valor 
 
-  //map.insert (std::make_pair<std::string,double>("eggs",6.0));
-
-  //int symbols[52];
   void updateSymbolVal(char* symbol, char* val);
   void printSymbolTable();
 
@@ -61,93 +57,118 @@
 %token  T_ABRE
 %token  T_FECHA
 
-%token  RELOP
-%token  NOT
-%token  ADDOP
-%token  MENOS
-%token  MULOP
+%token  <string_t> RELOP
+%token  <string_t> NOT
+%token  <string_t> ADDOP
+%token  <string_t> MENOS
+%token  <string_t> MULOP
 
 %left   T_IGUAL MENOS
 %right  RELOP ADDOP MULOP
 
 %%
-program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { /*updateSymbolVal($2," ");*/ printSymbolTable(); };
+program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { /*updateSymbolVal($2," ");*/ /*printSymbolTable();*/ }
+              ;
 
 decl_list:    decl_list decl
-              | decl;
+              | decl
+              ;
 
 decl:         |
-              ident_list T_DOISP type T_PVIRG;
+              ident_list T_DOISP type T_PVIRG
+              ;
 
-ident_list:   ident_list T_VIRG IDENTIFIER {updateSymbolVal($3,"?");}
-              | IDENTIFIER                 {updateSymbolVal($1,"?");};
+ident_list:   ident_list T_VIRG IDENTIFIER 
+              | IDENTIFIER                 {updateSymbolVal($1,"?");}
+              ;
 
-type :        INTEGER     { printf("\nt_INTEGER"); }
-              | REAL      { printf("\nt_REAL");    }
-              | BOOLEAN   { printf("\nt_BOOLEAN"); }
-              | CHAR      { printf("\nt_CHAR");    };
+type :        INTEGER     
+              | REAL      
+              | BOOLEAN   
+              | CHAR
+              ;
 
 compound_stmt: BEGIN_T stmt_list END;
 
-stmt_list:    stmt_list stmt          {printf("STMTLIST FULL");}
-              | stmt                  {printf("STMT");};
+stmt_list:    stmt_list stmt          
+              | stmt                  
+              ;
 
 stmt:         
-              | assign_stmt   T_PVIRG {printf("ASSIGN");}
+              | assign_stmt   T_PVIRG 
               | if_stmt
               | loop_stmt     T_PVIRG
               | read_stmt     T_PVIRG
               | write_stmt    T_PVIRG
-              | compound_stmt T_PVIRG;
+              | compound_stmt T_PVIRG
+              ;
 
-assign_stmt:  IDENTIFIER T_IGUAL expr;
+assign_stmt:  IDENTIFIER T_IGUAL expr         {updateSymbolVal($1,"-");}
+              ;
 
 if_stmt:      IF cond THEN stmt               { printf("\n_IF");      }
-              | IF cond THEN stmt ELSE stmt   { printf("\n_IF_ELSE"); };
+              | IF cond THEN stmt ELSE stmt   { printf("\n_IF_ELSE"); }
+              ;
 
-cond:         expr;
+cond:         expr
+              ;
 
-loop_stmt:    stmt_prefix DO stmt_list stmt_suffix;
+loop_stmt:    stmt_prefix DO stmt_list stmt_suffix { printf("\nLOOP");  }
+              ;
 
 stmt_prefix:  
-              | WHILE cond;
+              | WHILE cond
+              ;
 
 stmt_suffix:  UNTIL cond
-              | END;
+              | END
+              ;
 
 read_stmt:    READ T_ABRE ident_list T_FECHA  { printf("\nREAD");  }
 
-write_stmt:   WRITE T_ABRE expr_list T_FECHA  { printf("\nWRITE"); };
+write_stmt:   WRITE T_ABRE expr_list T_FECHA  { printf("\nWRITE"); }
+              ;
 
 expr_list:    expr
-              | expr_list T_VIRG expr;
+              | expr_list T_VIRG expr
+              ;
 
-expr:         simple_expr                     { printf("\n_exp"); }
-              | simple_expr RELOP simple_expr;
+expr:         simple_expr                     
+              | simple_expr RELOP simple_expr
+              ;
 
 simple_expr:  term
-              | simple_expr ADDOP term;
+              | simple_expr ADDOP term
+              ;
 
 term:         factor_a
-              | term MULOP factor_a;
+              | term MULOP factor_a
+              ;
 
 factor_a:     MENOS factor 
-              | factor;
+              | factor
+              ;
 
-factor:       IDENTIFIER               { printf("\n_IDENTIFIER"); };
+factor:       IDENTIFIER               
               | constant
               | T_ABRE expr T_FECHA
-              | NOT factor;
+              | NOT factor
+              ;
 
 constant:     INTEGER_CONSTANT 
               | REAL_CONSTANT
               | CHAR_CONSTANT
-              | BOOLEAN_CONSTANT;
+              | BOOLEAN_CONSTANT
+              ;
 
 %%
 
-void updateSymbolVal(char* symbol, char* val){
-  symbolTable[symbol] = val;
+void updateSymbolVal(char* symbol, char* value){
+  cout << endl << "[" << symbol << " ][ " << value << "]" << endl;
+  std::string sym(symbol);
+  std::string val(value);
+  cout << endl << "[" << sym << " ][ " << val << "]" << endl;
+  symbolTable[sym] = val;
 }
 
 void printSymbolTable(){

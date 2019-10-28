@@ -116,7 +116,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 25 "cp.y" /* yacc.c:1909  */
+#line 21 "cp.y" /* yacc.c:1909  */
  
   int    int_t;
   int    bool_t;
