@@ -1631,7 +1631,7 @@ yyreturn:
 
 
 void updateSymbolVal(char* symbol, char* value){
-  cout << endl << "[" << symbol << " ][ " << value << "]" << endl;
+  //cout << endl << "[" << symbol << " ][ " << value << "]" << endl;
   std::string sym(symbol);
   std::string val(value);
   cout << endl << "[" << sym << " ][ " << val << "]" << endl;

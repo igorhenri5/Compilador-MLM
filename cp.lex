@@ -1,4 +1,5 @@
 %{
+#include <string>
 #include "y.tab.h"
 %}
 
@@ -68,7 +69,7 @@ char_constant           "'"{ascii}"'"
 "mod"	{ yylval.string_t = "mod"; return MULOP; }
 "and"	{ yylval.string_t = "and"; return MULOP; }
 
-{identifier} { yylval.string_t = yytext;  return IDENTIFIER; }
+{identifier} { yylval.string_t = strdup(yytext);  return IDENTIFIER; }
 
 {stoken}     { ;}
 .       	 { ;}
