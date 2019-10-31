@@ -66,6 +66,8 @@
 %left   T_IGUAL MENOS
 %right  RELOP ADDOP MULOP
 
+%type <double_t> expr term factor_a factor simple_expr
+
 %%
 program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { /*updateSymbolVal($2," ");*/ /*printSymbolTable();*/ }
               ;
@@ -78,11 +80,11 @@ decl:         |
               ident_list T_DOISP type T_PVIRG
               ;
 
-ident_list:   ident_list T_VIRG IDENTIFIER 
-              | IDENTIFIER                 {updateSymbolVal($1,"?");}
+ident_list:   ident_list T_VIRG IDENTIFIER {updateSymbolVal($3,"");}
+              | IDENTIFIER                 {updateSymbolVal($1,"");}
               ;
 
-type :        INTEGER     
+type :        INTEGER    
               | REAL      
               | BOOLEAN   
               | CHAR
@@ -103,7 +105,7 @@ stmt:
               | compound_stmt T_PVIRG
               ;
 
-assign_stmt:  IDENTIFIER T_IGUAL expr         {updateSymbolVal($1,"-");}
+assign_stmt:  IDENTIFIER T_IGUAL expr         {/*updateSymbolVal($1,$3);*/ cout << endl << "[" << $1 << "][" << $3 << "]" << endl; }
               ;
 
 if_stmt:      IF cond THEN stmt               { printf("\n_IF");      }
@@ -113,7 +115,7 @@ if_stmt:      IF cond THEN stmt               { printf("\n_IF");      }
 cond:         expr
               ;
 
-loop_stmt:    stmt_prefix DO stmt_list stmt_suffix { printf("\nLOOP");  }
+loop_stmt:    stmt_prefix DO stmt_list stmt_suffix { printf("\nLOOP");}
               ;
 
 stmt_prefix:  
@@ -133,23 +135,24 @@ expr_list:    expr
               | expr_list T_VIRG expr
               ;
 
-expr:         simple_expr                     
-              | simple_expr RELOP simple_expr
+expr:         simple_expr                                    
+              | simple_expr RELOP simple_expr { $$ = 1; }
               ;
 
 simple_expr:  term
-              | simple_expr ADDOP term
+              | simple_expr ADDOP term        { $$ = $1 + $3; }
+              | simple_expr MENOS term        { $$ = $1 - $3; }
               ;
 
 term:         factor_a
-              | term MULOP factor_a
+              | term MULOP factor_a           { $$ = $1 * $3; }
               ;
 
-factor_a:     MENOS factor 
+factor_a:     MENOS factor                    { $$ = -1 * $2; }
               | factor
               ;
 
-factor:       IDENTIFIER               
+factor:       IDENTIFIER                
               | constant
               | T_ABRE expr T_FECHA
               | NOT factor
@@ -164,10 +167,9 @@ constant:     INTEGER_CONSTANT
 %%
 
 void updateSymbolVal(char* symbol, char* value){
-  //cout << endl << "[" << symbol << " ][ " << value << "]" << endl;
   std::string sym(symbol);
   std::string val(value);
-  cout << endl << "[" << sym << " ][ " << val << "]" << endl;
+  cout << endl << "[" << sym << "][" << val << "]" << endl;
   symbolTable[sym] = val;
 }
 
@@ -186,3 +188,7 @@ int main(){
 void yyerror(char *s){
   printf("\nERR - %s",s);
 }
+
+//char* paramToCharArray(){
+//
+//}
