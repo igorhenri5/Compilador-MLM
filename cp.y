@@ -1,9 +1,8 @@
 %{
-//  #include <stdlib.h>
-//  #include <ctype.h>
   #include <stdio.h>
   #include <iostream>
   #include <unordered_map>
+  #include <vector>
 
   using namespace std;
 
@@ -11,11 +10,79 @@
   int yylex();
 
   std::unordered_map<std::string,std::string> symbolTable;
+  
+  namespace SymbolTable{
+    class Entry{
+    private:
+      std::string type, name;
+    public: 
+      Entry(std::string name, std::string type){
+        this->name = name;
+        this->type = type;
+      }
 
-  void updateSymbolVal(char* symbol, char* val);
-  void printSymbolTable();
+      void setType(std::string type){
+        this->type = type;
+      }
+      std::string getType(){
+        return type;
+      }
 
-  std::string aux;
+      void setName(std::string name){
+        this->name = name;
+      }
+      std::string getName(){
+        return name;
+      }
+      
+      void printEntry(){
+        std::cout << type << " - " << name << endl;
+      }
+      
+    };
+
+    class SymbolTable{
+    private:
+      std::unordered_map<std::string,Entry *> table;
+    public:
+      SymbolTable(){}
+
+      ~SymbolTable(){
+        for(auto it = table.cbegin(); it != table.cend(); ++it){
+            delete it->second;
+        }
+      }   
+      
+      void install(std::string name, std::string type){
+        Entry *entry;
+        entry = new Entry(name, type);
+        this->table[name] = entry;                  
+      }
+      
+      void install(std::vector<std::string> *names, std::string type){
+        for(auto it = names->begin(); it != names->end(); ++it){        
+          install(*it, type);
+        }
+      }
+      
+      Entry* get(std::string name){
+        return this->table[name];
+      }
+
+      void printSymbolTable(){
+        cout << "\n\nSymbol Table" << endl; 
+        for(auto it = table.cbegin(); it != table.cend(); ++it){
+          it->second->printEntry();
+        }
+      }
+        
+    };
+    
+  }
+  
+SymbolTable::SymbolTable table;
+std::vector<std::string> installBuffer;
+
 %}
 
 %union{ 
@@ -44,9 +111,9 @@
 %token  READ
 %token  WRITE
 
-%token  <int_t>     INTEGER_CONSTANT
-%token  <bool_t>    BOOLEAN_CONSTANT
-%token  <double_t>  REAL_CONSTANT
+%token  <string_t>  INTEGER_CONSTANT
+%token  <string_t>  BOOLEAN_CONSTANT
+%token  <string_t>  REAL_CONSTANT
 %token  <string_t>  CHAR_CONSTANT
 %token  <string_t>  IDENTIFIER
 
@@ -69,7 +136,7 @@
 %type <double_t> expr term factor_a factor simple_expr
 
 %%
-program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt { /*updateSymbolVal($2," ");*/ /*printSymbolTable();*/ }
+program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt {table.printSymbolTable();}
               ;
 
 decl_list:    decl_list decl
@@ -80,14 +147,14 @@ decl:         |
               ident_list T_DOISP type T_PVIRG
               ;
 
-ident_list:   ident_list T_VIRG IDENTIFIER {updateSymbolVal($3,"");}
-              | IDENTIFIER                 {updateSymbolVal($1,"");}
+ident_list:   ident_list T_VIRG IDENTIFIER {installBuffer.push_back($3);}
+              | IDENTIFIER                 {installBuffer.push_back($1);}
               ;
 
-type :        INTEGER    
-              | REAL      
-              | BOOLEAN   
-              | CHAR
+type :        INTEGER     {table.install(&installBuffer, "INTEGER"); installBuffer.clear();}
+              | REAL      {table.install(&installBuffer, "REAL");    installBuffer.clear();}
+              | BOOLEAN   {table.install(&installBuffer, "BOOLEAN"); installBuffer.clear();}
+              | CHAR      {table.install(&installBuffer, "CHAR");    installBuffer.clear();}
               ;
 
 compound_stmt: BEGIN_T stmt_list END;
@@ -105,17 +172,17 @@ stmt:
               | compound_stmt T_PVIRG
               ;
 
-assign_stmt:  IDENTIFIER T_IGUAL expr         {/*updateSymbolVal($1,$3);*/ cout << endl << "[" << $1 << "][" << $3 << "]" << endl; }
+assign_stmt:  IDENTIFIER T_IGUAL expr         {}
               ;
 
-if_stmt:      IF cond THEN stmt               { printf("\n_IF");      }
-              | IF cond THEN stmt ELSE stmt   { printf("\n_IF_ELSE"); }
+if_stmt:      IF cond THEN stmt               {}
+              | IF cond THEN stmt ELSE stmt   {}
               ;
 
 cond:         expr
               ;
 
-loop_stmt:    stmt_prefix DO stmt_list stmt_suffix { printf("\nLOOP");}
+loop_stmt:    stmt_prefix DO stmt_list stmt_suffix {}
               ;
 
 stmt_prefix:  
@@ -126,9 +193,9 @@ stmt_suffix:  UNTIL cond
               | END
               ;
 
-read_stmt:    READ T_ABRE ident_list T_FECHA  { printf("\nREAD");  }
+read_stmt:    READ T_ABRE ident_list T_FECHA  {  }
 
-write_stmt:   WRITE T_ABRE expr_list T_FECHA  { printf("\nWRITE"); }
+write_stmt:   WRITE T_ABRE expr_list T_FECHA  {  }
               ;
 
 expr_list:    expr
@@ -189,6 +256,3 @@ void yyerror(char *s){
   printf("\nERR - %s",s);
 }
 
-//char* paramToCharArray(){
-//
-//}

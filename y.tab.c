@@ -64,11 +64,10 @@
 /* Copy the first part of user declarations.  */
 #line 1 "cp.y" /* yacc.c:339  */
 
-//  #include <stdlib.h>
-//  #include <ctype.h>
   #include <stdio.h>
   #include <iostream>
   #include <unordered_map>
+  #include <vector>
 
   using namespace std;
 
@@ -76,13 +75,81 @@
   int yylex();
 
   std::unordered_map<std::string,std::string> symbolTable;
+  
+  namespace SymbolTable{
+    class Entry{
+    private:
+      std::string type, name;
+    public: 
+      Entry(std::string name, std::string type){
+        this->name = name;
+        this->type = type;
+      }
 
-  void updateSymbolVal(char* symbol, char* val);
-  void printSymbolTable();
+      void setType(std::string type){
+        this->type = type;
+      }
+      std::string getType(){
+        return type;
+      }
 
-  std::string aux;
+      void setName(std::string name){
+        this->name = name;
+      }
+      std::string getName(){
+        return name;
+      }
+      
+      void printEntry(){
+        std::cout << type << " - " << name << endl;
+      }
+      
+    };
 
-#line 86 "y.tab.c" /* yacc.c:339  */
+    class SymbolTable{
+    private:
+      std::unordered_map<std::string,Entry *> table;
+    public:
+      SymbolTable(){}
+
+      ~SymbolTable(){
+        for(auto it = table.cbegin(); it != table.cend(); ++it){
+            delete it->second;
+        }
+      }   
+      
+      void install(std::string name, std::string type){
+        Entry *entry;
+        entry = new Entry(name, type);
+        this->table[name] = entry;                  
+      }
+      
+      void install(std::vector<std::string> *names, std::string type){
+        for(auto it = names->begin(); it != names->end(); ++it){        
+          install(*it, type);
+        }
+      }
+      
+      Entry* get(std::string name){
+        return this->table[name];
+      }
+
+      void printSymbolTable(){
+        cout << "\n\nSymbol Table" << endl; 
+        for(auto it = table.cbegin(); it != table.cend(); ++it){
+          it->second->printEntry();
+        }
+      }
+        
+    };
+    
+  }
+  
+SymbolTable::SymbolTable table;
+std::vector<std::string> installBuffer;
+
+
+#line 153 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -188,7 +255,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 21 "cp.y" /* yacc.c:355  */
+#line 88 "cp.y" /* yacc.c:355  */
  
   int    int_t;
   int    bool_t;
@@ -196,7 +263,7 @@ union YYSTYPE
   char   char_t;
   char*  string_t;
 
-#line 200 "y.tab.c" /* yacc.c:355  */
+#line 267 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -213,7 +280,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 217 "y.tab.c" /* yacc.c:358  */
+#line 284 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -513,12 +580,12 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    72,    72,    75,    76,    79,    80,    83,    84,    87,
-      88,    89,    90,    93,    95,    96,    99,   100,   101,   102,
-     103,   104,   105,   108,   111,   112,   115,   118,   121,   122,
-     125,   126,   129,   131,   134,   135,   138,   139,   142,   143,
-     144,   147,   148,   151,   152,   155,   156,   157,   158,   161,
-     162,   163,   164
+       0,   139,   139,   142,   143,   146,   147,   150,   151,   154,
+     155,   156,   157,   160,   162,   163,   166,   167,   168,   169,
+     170,   171,   172,   175,   178,   179,   182,   185,   188,   189,
+     192,   193,   196,   198,   201,   202,   205,   206,   209,   210,
+     211,   214,   215,   218,   219,   222,   223,   224,   225,   228,
+     229,   230,   231
 };
 #endif
 
@@ -1354,91 +1421,115 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 72 "cp.y" /* yacc.c:1646  */
-    { /*updateSymbolVal($2," ");*/ /*printSymbolTable();*/ }
-#line 1360 "y.tab.c" /* yacc.c:1646  */
+#line 139 "cp.y" /* yacc.c:1646  */
+    {table.printSymbolTable();}
+#line 1427 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 83 "cp.y" /* yacc.c:1646  */
-    {updateSymbolVal((yyvsp[0].string_t),"");}
-#line 1366 "y.tab.c" /* yacc.c:1646  */
+#line 150 "cp.y" /* yacc.c:1646  */
+    {installBuffer.push_back((yyvsp[0].string_t));}
+#line 1433 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 84 "cp.y" /* yacc.c:1646  */
-    {updateSymbolVal((yyvsp[0].string_t),"");}
-#line 1372 "y.tab.c" /* yacc.c:1646  */
+#line 151 "cp.y" /* yacc.c:1646  */
+    {installBuffer.push_back((yyvsp[0].string_t));}
+#line 1439 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 9:
+#line 154 "cp.y" /* yacc.c:1646  */
+    {table.install(&installBuffer, "INTEGER"); installBuffer.clear();}
+#line 1445 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 10:
+#line 155 "cp.y" /* yacc.c:1646  */
+    {table.install(&installBuffer, "REAL");    installBuffer.clear();}
+#line 1451 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 11:
+#line 156 "cp.y" /* yacc.c:1646  */
+    {table.install(&installBuffer, "BOOLEAN"); installBuffer.clear();}
+#line 1457 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 12:
+#line 157 "cp.y" /* yacc.c:1646  */
+    {table.install(&installBuffer, "CHAR");    installBuffer.clear();}
+#line 1463 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 108 "cp.y" /* yacc.c:1646  */
-    {/*updateSymbolVal($1,$3);*/ cout << endl << "[" << (yyvsp[-2].string_t) << "][" << (yyvsp[0].double_t) << "]" << endl; }
-#line 1378 "y.tab.c" /* yacc.c:1646  */
+#line 175 "cp.y" /* yacc.c:1646  */
+    {}
+#line 1469 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 111 "cp.y" /* yacc.c:1646  */
-    { printf("\n_IF");      }
-#line 1384 "y.tab.c" /* yacc.c:1646  */
+#line 178 "cp.y" /* yacc.c:1646  */
+    {}
+#line 1475 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 112 "cp.y" /* yacc.c:1646  */
-    { printf("\n_IF_ELSE"); }
-#line 1390 "y.tab.c" /* yacc.c:1646  */
+#line 179 "cp.y" /* yacc.c:1646  */
+    {}
+#line 1481 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 118 "cp.y" /* yacc.c:1646  */
-    { printf("\nLOOP");}
-#line 1396 "y.tab.c" /* yacc.c:1646  */
+#line 185 "cp.y" /* yacc.c:1646  */
+    {}
+#line 1487 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 129 "cp.y" /* yacc.c:1646  */
-    { printf("\nREAD");  }
-#line 1402 "y.tab.c" /* yacc.c:1646  */
+#line 196 "cp.y" /* yacc.c:1646  */
+    {  }
+#line 1493 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 131 "cp.y" /* yacc.c:1646  */
-    { printf("\nWRITE"); }
-#line 1408 "y.tab.c" /* yacc.c:1646  */
+#line 198 "cp.y" /* yacc.c:1646  */
+    {  }
+#line 1499 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 139 "cp.y" /* yacc.c:1646  */
+#line 206 "cp.y" /* yacc.c:1646  */
     { (yyval.double_t) = 1; }
-#line 1414 "y.tab.c" /* yacc.c:1646  */
+#line 1505 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 143 "cp.y" /* yacc.c:1646  */
+#line 210 "cp.y" /* yacc.c:1646  */
     { (yyval.double_t) = (yyvsp[-2].double_t) + (yyvsp[0].double_t); }
-#line 1420 "y.tab.c" /* yacc.c:1646  */
+#line 1511 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 144 "cp.y" /* yacc.c:1646  */
+#line 211 "cp.y" /* yacc.c:1646  */
     { (yyval.double_t) = (yyvsp[-2].double_t) - (yyvsp[0].double_t); }
-#line 1426 "y.tab.c" /* yacc.c:1646  */
+#line 1517 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 148 "cp.y" /* yacc.c:1646  */
+#line 215 "cp.y" /* yacc.c:1646  */
     { (yyval.double_t) = (yyvsp[-2].double_t) * (yyvsp[0].double_t); }
-#line 1432 "y.tab.c" /* yacc.c:1646  */
+#line 1523 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 151 "cp.y" /* yacc.c:1646  */
+#line 218 "cp.y" /* yacc.c:1646  */
     { (yyval.double_t) = -1 * (yyvsp[0].double_t); }
-#line 1438 "y.tab.c" /* yacc.c:1646  */
+#line 1529 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1442 "y.tab.c" /* yacc.c:1646  */
+#line 1533 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1666,7 +1757,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 167 "cp.y" /* yacc.c:1906  */
+#line 234 "cp.y" /* yacc.c:1906  */
 
 
 void updateSymbolVal(char* symbol, char* value){
@@ -1692,6 +1783,3 @@ void yyerror(char *s){
   printf("\nERR - %s",s);
 }
 
-//char* paramToCharArray(){
-//
-//}

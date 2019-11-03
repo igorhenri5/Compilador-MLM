@@ -1,7 +1,8 @@
 program teste01;
 
-a: integer;
-c: integer;
+a,b,i,e,d,f,g: integer;
+c,h: integer;
+a: real;
 
 begin
 
