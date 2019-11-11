@@ -124,16 +124,14 @@ std::vector<std::string> installBuffer;
 %token  T_ABRE
 %token  T_FECHA
 
-%token  <string_t> RELOP
-%token  <string_t> NOT
-%token  <string_t> ADDOP
-%token  <string_t> MENOS
-%token  <string_t> MULOP
+%token  RELOP
+%token  NOT
+%token  ADDOP
+%token  MENOS
+%token  MULOP
 
 %left   T_IGUAL MENOS
 %right  RELOP ADDOP MULOP
-
-%type <double_t> expr term factor_a factor simple_expr
 
 %%
 program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt {table.printSymbolTable();}
@@ -143,8 +141,7 @@ decl_list:    decl_list decl
               | decl
               ;
 
-decl:         |
-              ident_list T_DOISP type T_PVIRG
+decl:         ident_list T_DOISP type T_PVIRG
               ;
 
 ident_list:   ident_list T_VIRG IDENTIFIER {installBuffer.push_back($3);}
@@ -163,8 +160,7 @@ stmt_list:    stmt_list stmt
               | stmt                  
               ;
 
-stmt:         
-              | assign_stmt   T_PVIRG 
+stmt:         assign_stmt   T_PVIRG 
               | if_stmt
               | loop_stmt     T_PVIRG
               | read_stmt     T_PVIRG
@@ -203,19 +199,19 @@ expr_list:    expr
               ;
 
 expr:         simple_expr                                    
-              | simple_expr RELOP simple_expr { $$ = 1; }
+              | simple_expr RELOP simple_expr {  }
               ;
 
 simple_expr:  term
-              | simple_expr ADDOP term        { $$ = $1 + $3; }
-              | simple_expr MENOS term        { $$ = $1 - $3; }
+              | simple_expr ADDOP term        { }
+              | simple_expr MENOS term        { }
               ;
 
 term:         factor_a
-              | term MULOP factor_a           { $$ = $1 * $3; }
+              | term MULOP factor_a           { }
               ;
 
-factor_a:     MENOS factor                    { $$ = -1 * $2; }
+factor_a:     MENOS factor                    { }
               | factor
               ;
 
@@ -233,6 +229,15 @@ constant:     INTEGER_CONSTANT
 
 %%
 
+int main(){
+  int i;
+  return yyparse();
+}
+
+void yyerror(char *s){
+  printf("\nERR - %s",s);
+}
+
 void updateSymbolVal(char* symbol, char* value){
   std::string sym(symbol);
   std::string val(value);
@@ -246,13 +251,3 @@ void printSymbolTable(){
       std::cout << it->first << "  -  " << it->second << endl;
   }
 }
-
-int main(){
-  int i;
-  return yyparse();
-}
-
-void yyerror(char *s){
-  printf("\nERR - %s",s);
-}
-
