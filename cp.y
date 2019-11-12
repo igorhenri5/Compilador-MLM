@@ -111,6 +111,8 @@ program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt    {
                                                                         table.printSymbolTable();
                                                                         Block *block = $5;
                                                                         block->getQuadruplas()->print();
+                                                                        block->getQuadruplas()->deleteAll();
+                                                                        delete block;
                                                                     }
               ;
 
@@ -132,16 +134,20 @@ type :        INTEGER     {type = "INTEGER"; }
               ;
 
 compound_stmt: block_aux BEGIN_T stmt_list END  {
-                                                    Block *block;
-                                                    block = blockStack.top();
-                                                    blockStack.pop();
-                                                    blockStack.top()->addQuadruplas(block);
-                                                    delete block;
-                                                    nivel--;
+                                                    if(blockStack.size() > 1){
+                                                        Block *block;
+                                                        block = blockStack.top();
+                                                        blockStack.pop();
+                                                        blockStack.top()->addQuadruplas(block);
+
+                                                        delete block;
+                                                        nivel--;
+                                                    }
                                                 }
                 ;
 
-block_aux:      { $$ = new Block(nivel);
+block_aux:      {
+                $$ = new Block(nivel);
                 blockStack.push($$);
                 nivel++;
             }
