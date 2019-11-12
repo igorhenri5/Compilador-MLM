@@ -40,7 +40,7 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 40 "cp.y" /* yacc.c:1909  */
+#line 43 "cp.y" /* yacc.c:1909  */
 
   
   #include <iostream>
@@ -128,7 +128,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 51 "cp.y" /* yacc.c:1909  */
+#line 54 "cp.y" /* yacc.c:1909  */
  
   int    int_t;
   int    bool_t;
@@ -136,8 +136,9 @@ union YYSTYPE
   char   char_t;
   char*  string_t;
   Expression* expr_t;
+  FlowControl* flow_t;
 
-#line 141 "y.tab.h" /* yacc.c:1909  */
+#line 142 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

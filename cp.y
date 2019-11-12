@@ -2,13 +2,16 @@
   #include "SymbolTable.hpp"
   using namespace std;
 
+// int insideFlowControl = 0;
+
   void yyerror(char *s);
   int yylex();
 
-  extern std::string newtemp();
+  void printQuadruplas();
 
   SymbolTable::SymbolTable table;
   std::vector<Quadrupla*> quadruplas;
+  std::vector<FlowControl*> pilhaFlowControl;
   std::vector<std::string> installBuffer;
   std::string type;
 
@@ -55,6 +58,7 @@
   char   char_t;
   char*  string_t;
   Expression* expr_t;
+  FlowControl* flow_t;
 }
 
 %start program
@@ -94,14 +98,15 @@
 %token  MENOS
 %token  MULOP
 
-%type <expr_t> expr term factor_a factor simple_expr constant
+%type <expr_t> expr_list cond expr term factor_a factor simple_expr constant
+%type <flow_t> if_stmt if_aux
 %type <string_t> RELOP NOT ADDOP MENOS MULOP
 
 %left   T_IGUAL MENOS
 %right  RELOP ADDOP MULOP
 
 %%
-program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt {table.printSymbolTable();}
+program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt {table.printSymbolTable(); printQuadruplas();}
               ;
 
 decl_list:    decl_list decl
@@ -127,7 +132,7 @@ stmt_list:    stmt_list stmt
               | stmt                  
               ;
 
-stmt:         assign_stmt   T_PVIRG 
+stmt:         assign_stmt   T_PVIRG   
               | if_stmt
               | loop_stmt     T_PVIRG
               | read_stmt     T_PVIRG
@@ -135,17 +140,56 @@ stmt:         assign_stmt   T_PVIRG
               | compound_stmt T_PVIRG
               ;
 
-assign_stmt:  IDENTIFIER T_IGUAL expr         { }
+assign_stmt:  IDENTIFIER T_IGUAL expr               { 
+                                                      if(pilhaFlowControl.size()){
+                                                        pilhaFlowControl.back()->addQuadrupla(new Quadrupla(":=", $3->result, "", $1));
+                                                      }else{
+                                                        quadruplas.push_back(new Quadrupla(":=", $3->result, "", $1));
+                                                      }
+                                                    }
               ;
 
-if_stmt:      IF cond THEN stmt               { }
-              | IF cond THEN stmt ELSE stmt   { }
+if_stmt:      if_aux IF cond if_true_list THEN stmt                            { 
+                                                                                if(pilhaFlowControl.size() > 1){
+                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF"+$3->jumpType, $3->result, "goto", "?"));
+                                                                                  $$ = new FlowControl();
+                                                                                  pilhaFlowControl.push_back($$);
+                                                                                }else{
+                                                                                  quadruplas.push_back(new Quadrupla("IF"+$3->jumpType, $3->result, "goto", "?"));
+                                                                                  pilhaFlowControl.back()->commitLists(&quadruplas);
+                                                                                  pilhaFlowControl.pop_back(); 
+                                                                                }
+                                                                              }
+              | if_aux IF cond THEN if_true_list stmt if_false_list ELSE stmt { 
+                                                                                if(pilhaFlowControl.size() > 1){
+
+                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF"+$3->jumpType, $3->result, "goto", "?"));
+                                                                                  $$ = new FlowControl();
+                                                                                  pilhaFlowControl.push_back($$);
+                                                                                }else{
+                                                                                  quadruplas.push_back(new Quadrupla("IF"+$3->jumpType, $3->result, "goto", "?"));
+                                                                                  pilhaFlowControl.back()->commitLists(&quadruplas);
+                                                                                  pilhaFlowControl.pop_back();
+                                                                                }
+                                                                              }
+              ;
+
+if_aux:                                             { 
+                                                      $$ = new FlowControl();
+                                                      pilhaFlowControl.push_back($$);
+                                                    }
+              ;
+
+if_true_list:                                       { pilhaFlowControl.back()->setActiveList("true"); }
+              ;
+
+if_false_list:                                      { pilhaFlowControl.back()->setActiveList("false"); }
               ;
 
 cond:         expr
               ;
 
-loop_stmt:    stmt_prefix DO stmt_list stmt_suffix { }
+loop_stmt:    stmt_prefix DO stmt_list stmt_suffix  { }
               ;
 
 stmt_prefix:  
@@ -156,9 +200,22 @@ stmt_suffix:  UNTIL cond
               | END
               ;
 
-read_stmt:    READ T_ABRE ident_list T_FECHA  { }
+read_stmt:    READ T_ABRE ident_list T_FECHA  { 
+                                                if(pilhaFlowControl.size()){
+                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("READ",  "_", "", ""));
+                                                }else{
+                                                  quadruplas.push_back(new Quadrupla("READ",  "_", "", ""));
+                                                }
+                                              }
+              ;
 
-write_stmt:   WRITE T_ABRE expr_list T_FECHA  { }
+write_stmt:   WRITE T_ABRE expr_list T_FECHA  { 
+                                                if(pilhaFlowControl.size()){
+                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("WRITE",  "_", "", ""));
+                                                }else{
+                                                  quadruplas.push_back(new Quadrupla("WRITE",  "_", "", ""));
+                                                }
+                                              }
               ;
 
 expr_list:    expr
@@ -204,3 +261,19 @@ int main(){
 void yyerror(char *s){
   printf("\nERROR - %s",s);
 }
+
+void printQuadruplas(){  
+  std::cout << "\n\nQuadruplas" << std::endl; 
+  //std::cout << "op | arg1 | arg2 | rslt" << std::endl; 
+  for(int i=0; quadruplas.size(); i++){
+    quadruplas.at(i)->print();
+  }
+}
+
+/*
+void desempilhaQuadruplas(int numQuadruplas){
+  for(int i=0; i<numQuadruplas; i++){
+
+    pilhaQuadruplasFlowControl.pop_back();
+  }
+}*/

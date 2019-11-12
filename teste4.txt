@@ -14,5 +14,9 @@ begin
 	f := 5;
 
 	f := b + c * d - e;
+
+	if (a > 5)
+	then write(a);
+	else write(b);
 	
 end
