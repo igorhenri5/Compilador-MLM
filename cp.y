@@ -11,9 +11,11 @@
 
   SymbolTable::SymbolTable table;
   std::vector<Quadrupla*> quadruplas;
+  std::stack<Block*> blockStack;
   std::vector<FlowControl*> pilhaFlowControl;
   std::vector<std::string> installBuffer;
   std::string type;
+  int nivel = 0;
 
   std::string getType(std::string op, std::string e1Type, std::string e2Type){
     std::string type;
@@ -25,11 +27,11 @@
       return "CHAR";
     }else if(e1Type == "BOOLEAN" && e2Type == "BOOLEAN"){
       return "BOOLEAN";
-    }   
+    }
     std::cout << "SEMANTIC ERROR - TYPE MISMATCH" << std::endl;
     exit(1);
   }
-  
+
   int serial = 0;
   std::string newtemp(){
     std::string temp;
@@ -41,7 +43,7 @@
 %}
 
 %code requires {
-  
+
   #include <iostream>
   #include <unordered_map>
   #include <vector>
@@ -51,7 +53,7 @@
 }
 
 
-%union{ 
+%union{
   int    int_t;
   int    bool_t;
   double double_t;
@@ -59,6 +61,7 @@
   char*  string_t;
   Expression* expr_t;
   FlowControl* flow_t;
+  Block * block_t;
 }
 
 %start program
@@ -126,13 +129,24 @@ type :        INTEGER     {type = "INTEGER"; }
               | CHAR      {type = "CHAR";    }
               ;
 
-compound_stmt: BEGIN_T stmt_list END;
+compound_stmt: block_aux BEGIN_T stmt_list END  {
+                                                    delete blockStack.top();
+                                                    nivel--;
+                                                }
+                ;
 
-stmt_list:    stmt_list stmt          
-              | stmt                  
+block_aux:      {
+                blockStack.push(new Block(nivel));
+                nivel++;
+            }
+            ;
+
+
+stmt_list:    stmt_list stmt
+              | stmt
               ;
 
-stmt:         assign_stmt   T_PVIRG   
+stmt:         assign_stmt   T_PVIRG
               | if_stmt
               | loop_stmt     T_PVIRG
               | read_stmt     T_PVIRG
@@ -140,7 +154,7 @@ stmt:         assign_stmt   T_PVIRG
               | compound_stmt T_PVIRG
               ;
 
-assign_stmt:  IDENTIFIER T_IGUAL expr               { 
+assign_stmt:  IDENTIFIER T_IGUAL expr               {
                                                       if(pilhaFlowControl.size()){
                                                         pilhaFlowControl.back()->addQuadrupla(new Quadrupla(":=", $3->result, "", $1));
                                                       }else{
@@ -150,7 +164,7 @@ assign_stmt:  IDENTIFIER T_IGUAL expr               {
               ;
 
 // tá quebrado pra if aninhado, tentei mas to querendo dormir ja nao to mais raciocinando direito
-if_stmt:      if_aux IF cond if_true_list THEN stmt                            { 
+if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
                                                                                 if(pilhaFlowControl.size() > 1){
                                                                                   pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
                                                                                   $$ = new FlowControl();
@@ -158,10 +172,10 @@ if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
                                                                                 }else{
                                                                                   quadruplas.push_back(new Quadrupla("IF", $3->result, "_", "_"));
                                                                                   pilhaFlowControl.back()->commitLists(&quadruplas);
-                                                                                  pilhaFlowControl.pop_back(); 
+                                                                                  pilhaFlowControl.pop_back();
                                                                                 }
                                                                               }
-              | if_aux IF cond THEN if_true_list stmt if_false_list ELSE stmt { 
+              | if_aux IF cond THEN if_true_list stmt if_false_list ELSE stmt {
                                                                                 if(pilhaFlowControl.size() > 1){
 
                                                                                   pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
@@ -175,7 +189,7 @@ if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
                                                                               }
               ;
 
-if_aux:                                             { 
+if_aux:                                             {
                                                       $$ = new FlowControl();
                                                       pilhaFlowControl.push_back($$);
                                                     }
@@ -193,7 +207,7 @@ cond:         expr
 loop_stmt:    stmt_prefix DO stmt_list stmt_suffix  { }
               ;
 
-stmt_prefix:  
+stmt_prefix:
               | WHILE cond
               ;
 
@@ -201,7 +215,7 @@ stmt_suffix:  UNTIL cond
               | END
               ;
 
-read_stmt:    READ T_ABRE ident_list T_FECHA  { 
+read_stmt:    READ T_ABRE ident_list T_FECHA  {
                                                 if(pilhaFlowControl.size()){
                                                   pilhaFlowControl.back()->addQuadrupla(new Quadrupla("READ",  "_", "", ""));
                                                 }else{
@@ -210,7 +224,7 @@ read_stmt:    READ T_ABRE ident_list T_FECHA  {
                                               }
               ;
 
-write_stmt:   WRITE T_ABRE expr_list T_FECHA  { 
+write_stmt:   WRITE T_ABRE expr_list T_FECHA  {
                                                 if(pilhaFlowControl.size()){
                                                   pilhaFlowControl.back()->addQuadrupla(new Quadrupla("WRITE",  "_", "", ""));
                                                 }else{
@@ -223,25 +237,25 @@ expr_list:    expr
               | expr_list T_VIRG expr
               ;
 
-expr:         simple_expr                                    
+expr:         simple_expr
               | simple_expr RELOP simple_expr { //SHRUD -- se tá dentro de algum flowControl não é pra adicionar direto nas quadruplas, mas na trueList ou falseList -- da pra fazer isso criando mais construtor com &quadruplas viran &pilhaFlowlist e fazendo addQuadrupla pelo objeto flowControl
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, &quadruplas); 
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, &quadruplas);
                                                 }else{
-                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, &quadruplas); 
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, &quadruplas);
                                                 }
                                               }
               ;
 
 simple_expr:  term
-              | simple_expr ADDOP term        { 
+              | simple_expr ADDOP term        {
                                                 if(pilhaFlowControl.size()){
                                                   $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, &quadruplas);
                                                 }else{
                                                   $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, &quadruplas);
                                                 }
                                               }
-              | simple_expr MENOS term        { 
+              | simple_expr MENOS term        {
                                                 if(pilhaFlowControl.size()){
                                                   $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, &quadruplas);
                                                 }else{
@@ -251,7 +265,7 @@ simple_expr:  term
               ;
 
 term:         factor_a
-              | term MULOP factor_a           { 
+              | term MULOP factor_a           {
                                                 if(pilhaFlowControl.size()){
                                                   $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, &quadruplas);
                                                 }else{
@@ -260,18 +274,18 @@ term:         factor_a
                                               }
               ;
 
-factor_a:     MENOS factor                    { 
+factor_a:     MENOS factor                    {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($2, "-", newtemp(), &table, &quadruplas); 
+                                                  $$ = new Expression($2, "-", newtemp(), &table, &quadruplas);
                                                 }else{
-                                                  $$ = new Expression($2, "-", newtemp(), &table, &quadruplas); 
+                                                  $$ = new Expression($2, "-", newtemp(), &table, &quadruplas);
                                                 }
                                               }
               | factor
               ;
 
-factor:       IDENTIFIER              { $$ = new Expression($1, (table.get($1))->getType()); } 
-              | constant          
+factor:       IDENTIFIER              { $$ = new Expression($1, (table.get($1))->getType()); }
+              | constant
               | T_ABRE expr T_FECHA   { $$ = $2; }
               | NOT factor            { $$ = new Expression($2, "NOT", newtemp(), &table, &quadruplas); }
               ;
@@ -293,9 +307,9 @@ void yyerror(char *s){
   printf("\nERROR - %s",s);
 }
 
-void printQuadruplas(){  
-  std::cout << "\n\nQuadruplas" << std::endl; 
-  //std::cout << "op | arg1 | arg2 | rslt" << std::endl; 
+void printQuadruplas(){
+  std::cout << "\n\nQuadruplas" << std::endl;
+  //std::cout << "op | arg1 | arg2 | rslt" << std::endl;
   for(int i=0; quadruplas.size(); i++){
     cout << i  << " ";
     quadruplas.at(i)->print();

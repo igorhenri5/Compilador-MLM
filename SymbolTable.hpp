@@ -4,6 +4,7 @@
   #include <iostream>
   #include <unordered_map>
   #include <vector>
+  #include <stack>
   #include <string>
 
   namespace SymbolTable{
