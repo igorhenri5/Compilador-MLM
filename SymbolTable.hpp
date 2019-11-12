@@ -178,14 +178,23 @@
 
   class Block{
   private:
+      int nivel;
       std::vector<Quadrupla*> quadruplas;
   public:
+      Block(int nivel){
+          this->nivel = nivel;
+      }
+
       void addQuadrupla(Quadrupla* quadrupla){
           this->quadruplas.push_back(quadrupla);
       }
 
       std::vector<Quadrupla*>* getQuadruplas(){
           return &this->quadruplas;
+      }
+
+      int getNivel(){
+          return this->nivel;
       }
 
       int getSize(){
