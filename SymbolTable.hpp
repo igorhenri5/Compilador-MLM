@@ -10,7 +10,7 @@
     class Entry{
     private:
       std::string type, name;
-    public: 
+    public:
       Entry(std::string name, std::string type){
         this->name = name;
         this->type = type;
@@ -29,11 +29,11 @@
       std::string getName(){
         return name;
       }
-      
+
       void printEntry(){
         std::cout << type << " - " << name << std::endl;
       }
-      
+
     };
 
     class SymbolTable{
@@ -46,35 +46,35 @@
         for(auto it = table.cbegin(); it != table.cend(); ++it){
             delete it->second;
         }
-      }   
-      
+      }
+
       void install(std::string name, std::string type){
         Entry *entry;
         entry = new Entry(name, type);
-        this->table[name] = entry;                  
+        this->table[name] = entry;
       }
-      
+
       void install(std::vector<std::string> *names, std::string type){
-        for(auto it = names->begin(); it != names->end(); ++it){        
+        for(auto it = names->begin(); it != names->end(); ++it){
           install(*it, type);
         }
       }
-      
+
       Entry* get(std::string name){
         return this->table[name];
       }
 
       void printSymbolTable(){
-        std::cout << "\n\nSymbol Table" << std::endl; 
+        std::cout << "\n\nSymbol Table" << std::endl;
         for(auto it = table.cbegin(); it != table.cend(); ++it){
           it->second->printEntry();
         }
       }
-        
+
     };
-    
+
   }
-  
+
   class Quadrupla{
   public:
     std::string op, arg1, arg2, result;
@@ -86,7 +86,7 @@
       this->result = result;
     }
     void print(){
-      std::cout << op << " " << arg1  << " " << arg2 << " " <<  result << std::endl; 
+      std::cout << op << " " << arg1  << " " << arg2 << " " <<  result << std::endl;
     }
   };
 
@@ -99,10 +99,10 @@
       this->e1 = e1;
       this->e2 = e2;
       this->op = op;
-      this->result = result;      
+      this->result = result;
       this->type   = type;
       this->jumpType = checkJumpType("op");
-      
+
       table->install(this->result, this->type);
       quadruplas->push_back(new Quadrupla(op, e1->result, e2->result, this->result));
     }
@@ -112,7 +112,7 @@
       this->result = result;
       this->type   = e1->type;
       this->jumpType = "JNZ";
-      
+
       table->install(this->result, this->type);
       quadruplas->push_back(new Quadrupla(op, e1->result, NULL, this->result));
     }
@@ -139,7 +139,7 @@
       if(op == "<=")
         return "JLE";
       return "JNZ";
-    }        
+    }
   };
 
   class FlowControl{
@@ -147,7 +147,7 @@
       std::vector<Quadrupla*> trueList;
       std::vector<Quadrupla*> falseList;
       std::string activeList;
-    FlowControl(){      
+    FlowControl(){
     }
     ~FlowControl(){
       //delete das lista ali
@@ -163,17 +163,34 @@
       }
     }
     void commitLists(std::vector<Quadrupla*>* quadruplas){
-      //Aqui que a mágica acontece, mas tem uma pa de coisa pra fazer aq 
+      //Aqui que a mágica acontece, mas tem uma pa de coisa pra fazer aq
       //quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()), "", ""));
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList[i]);
       }
-      quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()+falseList.size()), "", ""));      
+      quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()+falseList.size()), "", ""));
       for(int i=0; i<falseList.size() ;i++){
         quadruplas->push_back(falseList[i]);
       }
 
     }
+  };
+
+  class Block{
+  private:
+      std::vector<Quadrupla*> quadruplas;
+  public:
+      void addQuadrupla(Quadrupla* quadrupla){
+          this->quadruplas.push_back(quadrupla);
+      }
+
+      std::vector<Quadrupla*>* getQuadruplas(){
+          return &this->quadruplas;
+      }
+
+      int getSize(){
+          return this->quadruplas.size();
+      }
   };
 
 #endif
