@@ -149,13 +149,14 @@ assign_stmt:  IDENTIFIER T_IGUAL expr               {
                                                     }
               ;
 
+// tá quebrado pra if aninhado, tentei mas to querendo dormir ja nao to mais raciocinando direito
 if_stmt:      if_aux IF cond if_true_list THEN stmt                            { 
                                                                                 if(pilhaFlowControl.size() > 1){
-                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF"+$3->jumpType, $3->result, "goto", "?"));
+                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
                                                                                   $$ = new FlowControl();
                                                                                   pilhaFlowControl.push_back($$);
                                                                                 }else{
-                                                                                  quadruplas.push_back(new Quadrupla("IF"+$3->jumpType, $3->result, "goto", "?"));
+                                                                                  quadruplas.push_back(new Quadrupla("IF", $3->result, "_", "_"));
                                                                                   pilhaFlowControl.back()->commitLists(&quadruplas);
                                                                                   pilhaFlowControl.pop_back(); 
                                                                                 }
@@ -163,11 +164,11 @@ if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
               | if_aux IF cond THEN if_true_list stmt if_false_list ELSE stmt { 
                                                                                 if(pilhaFlowControl.size() > 1){
 
-                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF"+$3->jumpType, $3->result, "goto", "?"));
+                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
                                                                                   $$ = new FlowControl();
                                                                                   pilhaFlowControl.push_back($$);
                                                                                 }else{
-                                                                                  quadruplas.push_back(new Quadrupla("IF"+$3->jumpType, $3->result, "goto", "?"));
+                                                                                  quadruplas.push_back(new Quadrupla("IF", $3->result, "_", "_"));
                                                                                   pilhaFlowControl.back()->commitLists(&quadruplas);
                                                                                   pilhaFlowControl.pop_back();
                                                                                 }
@@ -223,19 +224,49 @@ expr_list:    expr
               ;
 
 expr:         simple_expr                                    
-              | simple_expr RELOP simple_expr { $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, &quadruplas); }
+              | simple_expr RELOP simple_expr { //SHRUD -- se tá dentro de algum flowControl não é pra adicionar direto nas quadruplas, mas na trueList ou falseList -- da pra fazer isso criando mais construtor com &quadruplas viran &pilhaFlowlist e fazendo addQuadrupla pelo objeto flowControl
+                                                if(pilhaFlowControl.size()){
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, &quadruplas); 
+                                                }else{
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, &quadruplas); 
+                                                }
+                                              }
               ;
 
 simple_expr:  term
-              | simple_expr ADDOP term        { $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, &quadruplas);}
-              | simple_expr MENOS term        { $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, &quadruplas);}
+              | simple_expr ADDOP term        { 
+                                                if(pilhaFlowControl.size()){
+                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, &quadruplas);
+                                                }else{
+                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, &quadruplas);
+                                                }
+                                              }
+              | simple_expr MENOS term        { 
+                                                if(pilhaFlowControl.size()){
+                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, &quadruplas);
+                                                }else{
+                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, &quadruplas);
+                                                }
+                                              }
               ;
 
 term:         factor_a
-              | term MULOP factor_a           { $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, &quadruplas);}
+              | term MULOP factor_a           { 
+                                                if(pilhaFlowControl.size()){
+                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, &quadruplas);
+                                                }else{
+                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, &quadruplas);
+                                                }
+                                              }
               ;
 
-factor_a:     MENOS factor                    { $$ = new Expression($2, "-", newtemp(), &table, &quadruplas); }
+factor_a:     MENOS factor                    { 
+                                                if(pilhaFlowControl.size()){
+                                                  $$ = new Expression($2, "-", newtemp(), &table, &quadruplas); 
+                                                }else{
+                                                  $$ = new Expression($2, "-", newtemp(), &table, &quadruplas); 
+                                                }
+                                              }
               | factor
               ;
 
@@ -266,14 +297,7 @@ void printQuadruplas(){
   std::cout << "\n\nQuadruplas" << std::endl; 
   //std::cout << "op | arg1 | arg2 | rslt" << std::endl; 
   for(int i=0; quadruplas.size(); i++){
+    cout << i  << " ";
     quadruplas.at(i)->print();
   }
 }
-
-/*
-void desempilhaQuadruplas(int numQuadruplas){
-  for(int i=0; i<numQuadruplas; i++){
-
-    pilhaQuadruplasFlowControl.pop_back();
-  }
-}*/

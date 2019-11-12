@@ -163,10 +163,12 @@
       }
     }
     void commitLists(std::vector<Quadrupla*>* quadruplas){
-      //Aqui que a mágica acontece, mas tem uma pa de coisa pra fazer
+      //Aqui que a mágica acontece, mas tem uma pa de coisa pra fazer aq 
+      //quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()), "", ""));
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList[i]);
       }
+      quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()+falseList.size()), "", ""));      
       for(int i=0; i<falseList.size() ;i++){
         quadruplas->push_back(falseList[i]);
       }
