@@ -39,6 +39,18 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 40 "cp.y" /* yacc.c:1909  */
+
+  
+  #include <iostream>
+  #include <unordered_map>
+  #include <vector>
+  #include <string>
+  #include "SymbolTable.hpp"
+
+
+#line 54 "y.tab.h" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -116,15 +128,16 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 88 "cp.y" /* yacc.c:1909  */
+#line 51 "cp.y" /* yacc.c:1909  */
  
   int    int_t;
   int    bool_t;
   double double_t;
   char   char_t;
   char*  string_t;
+  Expression* expr_t;
 
-#line 128 "y.tab.h" /* yacc.c:1909  */
+#line 141 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

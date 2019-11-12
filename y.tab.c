@@ -64,92 +64,44 @@
 /* Copy the first part of user declarations.  */
 #line 1 "cp.y" /* yacc.c:339  */
 
-  #include <stdio.h>
-  #include <iostream>
-  #include <unordered_map>
-  #include <vector>
-
+  #include "SymbolTable.hpp"
   using namespace std;
 
   void yyerror(char *s);
   int yylex();
 
-  std::unordered_map<std::string,std::string> symbolTable;
-  
-  namespace SymbolTable{
-    class Entry{
-    private:
-      std::string type, name;
-    public: 
-      Entry(std::string name, std::string type){
-        this->name = name;
-        this->type = type;
-      }
+  extern std::string newtemp();
 
-      void setType(std::string type){
-        this->type = type;
-      }
-      std::string getType(){
-        return type;
-      }
+  SymbolTable::SymbolTable table;
+  std::vector<Quadrupla*> quadruplas;
+  std::vector<std::string> installBuffer;
+  std::string type;
 
-      void setName(std::string name){
-        this->name = name;
-      }
-      std::string getName(){
-        return name;
-      }
-      
-      void printEntry(){
-        std::cout << type << " - " << name << endl;
-      }
-      
-    };
-
-    class SymbolTable{
-    private:
-      std::unordered_map<std::string,Entry *> table;
-    public:
-      SymbolTable(){}
-
-      ~SymbolTable(){
-        for(auto it = table.cbegin(); it != table.cend(); ++it){
-            delete it->second;
-        }
-      }   
-      
-      void install(std::string name, std::string type){
-        Entry *entry;
-        entry = new Entry(name, type);
-        this->table[name] = entry;                  
-      }
-      
-      void install(std::vector<std::string> *names, std::string type){
-        for(auto it = names->begin(); it != names->end(); ++it){        
-          install(*it, type);
-        }
-      }
-      
-      Entry* get(std::string name){
-        return this->table[name];
-      }
-
-      void printSymbolTable(){
-        cout << "\n\nSymbol Table" << endl; 
-        for(auto it = table.cbegin(); it != table.cend(); ++it){
-          it->second->printEntry();
-        }
-      }
-        
-    };
-    
+  std::string getType(std::string op, std::string e1Type, std::string e2Type){
+    std::string type;
+    if((e1Type == "REAL" && (e2Type != "BOOLEAN")) || (e2Type == "REAL" && (e1Type != "BOOLEAN"))){
+      return "REAL";
+    }else if((e1Type == "INTEGER" && e2Type != "BOOLEAN") || (e2Type == "INTEGER" && e1Type != "BOOLEAN") ){
+      return "INTEGER";
+    }else if(e1Type == "CHAR" && e2Type == "CHAR"){
+      return "CHAR";
+    }else if(e1Type == "BOOLEAN" && e2Type == "BOOLEAN"){
+      return "BOOLEAN";
+    }   
+    std::cout << "SEMANTIC ERROR - TYPE MISMATCH" << std::endl;
+    exit(1);
   }
   
-SymbolTable::SymbolTable table;
-std::vector<std::string> installBuffer;
+  int serial = 0;
+  std::string newtemp(){
+    std::string temp;
+    temp = "" + std::to_string(serial) + "t";
+    serial++;
+    return temp;
+  }
 
 
-#line 153 "y.tab.c" /* yacc.c:339  */
+#line 105 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -178,6 +130,18 @@ std::vector<std::string> installBuffer;
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 40 "cp.y" /* yacc.c:355  */
+
+  
+  #include <iostream>
+  #include <unordered_map>
+  #include <vector>
+  #include <string>
+  #include "SymbolTable.hpp"
+
+
+#line 145 "y.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -255,15 +219,16 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 88 "cp.y" /* yacc.c:355  */
+#line 51 "cp.y" /* yacc.c:355  */
  
   int    int_t;
   int    bool_t;
   double double_t;
   char   char_t;
   char*  string_t;
+  Expression* expr_t;
 
-#line 267 "y.tab.c" /* yacc.c:355  */
+#line 232 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -280,7 +245,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 284 "y.tab.c" /* yacc.c:358  */
+#line 249 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -580,12 +545,12 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   137,   137,   140,   141,   144,   147,   148,   151,   152,
-     153,   154,   157,   159,   160,   163,   164,   165,   166,   167,
-     168,   171,   174,   175,   178,   181,   184,   185,   188,   189,
-     192,   194,   197,   198,   201,   202,   205,   206,   207,   210,
-     211,   214,   215,   218,   219,   220,   221,   224,   225,   226,
-     227
+       0,   104,   104,   107,   108,   111,   114,   115,   118,   119,
+     120,   121,   124,   126,   127,   130,   131,   132,   133,   134,
+     135,   138,   141,   142,   145,   148,   151,   152,   155,   156,
+     159,   161,   164,   165,   168,   169,   172,   173,   174,   177,
+     178,   181,   182,   185,   186,   187,   188,   191,   192,   193,
+     194
 };
 #endif
 
@@ -1421,115 +1386,163 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 137 "cp.y" /* yacc.c:1646  */
+#line 104 "cp.y" /* yacc.c:1646  */
     {table.printSymbolTable();}
-#line 1427 "y.tab.c" /* yacc.c:1646  */
+#line 1392 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 5:
+#line 111 "cp.y" /* yacc.c:1646  */
+    {table.install(&installBuffer, type); installBuffer.clear();}
+#line 1398 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 147 "cp.y" /* yacc.c:1646  */
+#line 114 "cp.y" /* yacc.c:1646  */
     {installBuffer.push_back((yyvsp[0].string_t));}
-#line 1433 "y.tab.c" /* yacc.c:1646  */
+#line 1404 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 148 "cp.y" /* yacc.c:1646  */
+#line 115 "cp.y" /* yacc.c:1646  */
     {installBuffer.push_back((yyvsp[0].string_t));}
-#line 1439 "y.tab.c" /* yacc.c:1646  */
+#line 1410 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 151 "cp.y" /* yacc.c:1646  */
-    {table.install(&installBuffer, "INTEGER"); installBuffer.clear();}
-#line 1445 "y.tab.c" /* yacc.c:1646  */
+#line 118 "cp.y" /* yacc.c:1646  */
+    {type = "INTEGER"; }
+#line 1416 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 152 "cp.y" /* yacc.c:1646  */
-    {table.install(&installBuffer, "REAL");    installBuffer.clear();}
-#line 1451 "y.tab.c" /* yacc.c:1646  */
+#line 119 "cp.y" /* yacc.c:1646  */
+    {type = "REAL";    }
+#line 1422 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 153 "cp.y" /* yacc.c:1646  */
-    {table.install(&installBuffer, "BOOLEAN"); installBuffer.clear();}
-#line 1457 "y.tab.c" /* yacc.c:1646  */
+#line 120 "cp.y" /* yacc.c:1646  */
+    {type = "BOOLEAN"; }
+#line 1428 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 154 "cp.y" /* yacc.c:1646  */
-    {table.install(&installBuffer, "CHAR");    installBuffer.clear();}
-#line 1463 "y.tab.c" /* yacc.c:1646  */
+#line 121 "cp.y" /* yacc.c:1646  */
+    {type = "CHAR";    }
+#line 1434 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 171 "cp.y" /* yacc.c:1646  */
-    {}
-#line 1469 "y.tab.c" /* yacc.c:1646  */
+#line 138 "cp.y" /* yacc.c:1646  */
+    { }
+#line 1440 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 174 "cp.y" /* yacc.c:1646  */
-    {}
-#line 1475 "y.tab.c" /* yacc.c:1646  */
+#line 141 "cp.y" /* yacc.c:1646  */
+    { }
+#line 1446 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 175 "cp.y" /* yacc.c:1646  */
-    {}
-#line 1481 "y.tab.c" /* yacc.c:1646  */
+#line 142 "cp.y" /* yacc.c:1646  */
+    { }
+#line 1452 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 181 "cp.y" /* yacc.c:1646  */
-    {}
-#line 1487 "y.tab.c" /* yacc.c:1646  */
+#line 148 "cp.y" /* yacc.c:1646  */
+    { }
+#line 1458 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 192 "cp.y" /* yacc.c:1646  */
-    {  }
-#line 1493 "y.tab.c" /* yacc.c:1646  */
+#line 159 "cp.y" /* yacc.c:1646  */
+    { }
+#line 1464 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 194 "cp.y" /* yacc.c:1646  */
-    {  }
-#line 1499 "y.tab.c" /* yacc.c:1646  */
+#line 161 "cp.y" /* yacc.c:1646  */
+    { }
+#line 1470 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 202 "cp.y" /* yacc.c:1646  */
-    {  }
-#line 1505 "y.tab.c" /* yacc.c:1646  */
+#line 169 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), (yyvsp[-1].string_t), (yyvsp[0].expr_t), newtemp(), getType((yyvsp[-1].string_t), (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, &quadruplas); }
+#line 1476 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 206 "cp.y" /* yacc.c:1646  */
-    { }
-#line 1511 "y.tab.c" /* yacc.c:1646  */
+#line 173 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), "+", (yyvsp[0].expr_t), newtemp(), getType("+", (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, &quadruplas);}
+#line 1482 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 207 "cp.y" /* yacc.c:1646  */
-    { }
-#line 1517 "y.tab.c" /* yacc.c:1646  */
+#line 174 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), "-", (yyvsp[0].expr_t), newtemp(), getType("-", (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, &quadruplas);}
+#line 1488 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 211 "cp.y" /* yacc.c:1646  */
-    { }
-#line 1523 "y.tab.c" /* yacc.c:1646  */
+#line 178 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), "*", (yyvsp[0].expr_t), newtemp(), getType("*", (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, &quadruplas);}
+#line 1494 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 214 "cp.y" /* yacc.c:1646  */
-    { }
-#line 1529 "y.tab.c" /* yacc.c:1646  */
+#line 181 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = new Expression((yyvsp[0].expr_t), "-", newtemp(), &table, &quadruplas); }
+#line 1500 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 43:
+#line 185 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = new Expression((yyvsp[0].string_t), (table.get((yyvsp[0].string_t)))->getType()); }
+#line 1506 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 45:
+#line 187 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = (yyvsp[-1].expr_t); }
+#line 1512 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 46:
+#line 188 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = new Expression((yyvsp[0].expr_t), "NOT", newtemp(), &table, &quadruplas); }
+#line 1518 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 47:
+#line 191 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = new Expression((yyvsp[0].string_t), "INTEGER"); }
+#line 1524 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 48:
+#line 192 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = new Expression((yyvsp[0].string_t), "REAL");    }
+#line 1530 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 49:
+#line 193 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = new Expression((yyvsp[0].string_t), "BOOLEAN"); }
+#line 1536 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 50:
+#line 194 "cp.y" /* yacc.c:1646  */
+    { (yyval.expr_t) = new Expression((yyvsp[0].string_t), "CHAR");    }
+#line 1542 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1533 "y.tab.c" /* yacc.c:1646  */
+#line 1546 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1757,7 +1770,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 230 "cp.y" /* yacc.c:1906  */
+#line 197 "cp.y" /* yacc.c:1906  */
 
 
 int main(){
@@ -1766,19 +1779,5 @@ int main(){
 }
 
 void yyerror(char *s){
-  printf("\nERR - %s",s);
-}
-
-void updateSymbolVal(char* symbol, char* value){
-  std::string sym(symbol);
-  std::string val(value);
-  cout << endl << "[" << sym << "][" << val << "]" << endl;
-  symbolTable[sym] = val;
-}
-
-void printSymbolTable(){
-  cout << "\n\nSymbol Table" << endl; 
-  for(auto it = symbolTable.cbegin(); it != symbolTable.cend(); ++it){
-      std::cout << it->first << "  -  " << it->second << endl;
-  }
+  printf("\nERROR - %s",s);
 }

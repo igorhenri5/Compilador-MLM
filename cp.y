@@ -1,89 +1,52 @@
 %{
-  #include <stdio.h>
-  #include <iostream>
-  #include <unordered_map>
-  #include <vector>
-
+  #include "SymbolTable.hpp"
   using namespace std;
 
   void yyerror(char *s);
   int yylex();
 
-  std::unordered_map<std::string,std::string> symbolTable;
-  
-  namespace SymbolTable{
-    class Entry{
-    private:
-      std::string type, name;
-    public: 
-      Entry(std::string name, std::string type){
-        this->name = name;
-        this->type = type;
-      }
+  extern std::string newtemp();
 
-      void setType(std::string type){
-        this->type = type;
-      }
-      std::string getType(){
-        return type;
-      }
+  SymbolTable::SymbolTable table;
+  std::vector<Quadrupla*> quadruplas;
+  std::vector<std::string> installBuffer;
+  std::string type;
 
-      void setName(std::string name){
-        this->name = name;
-      }
-      std::string getName(){
-        return name;
-      }
-      
-      void printEntry(){
-        std::cout << type << " - " << name << endl;
-      }
-      
-    };
-
-    class SymbolTable{
-    private:
-      std::unordered_map<std::string,Entry *> table;
-    public:
-      SymbolTable(){}
-
-      ~SymbolTable(){
-        for(auto it = table.cbegin(); it != table.cend(); ++it){
-            delete it->second;
-        }
-      }   
-      
-      void install(std::string name, std::string type){
-        Entry *entry;
-        entry = new Entry(name, type);
-        this->table[name] = entry;                  
-      }
-      
-      void install(std::vector<std::string> *names, std::string type){
-        for(auto it = names->begin(); it != names->end(); ++it){        
-          install(*it, type);
-        }
-      }
-      
-      Entry* get(std::string name){
-        return this->table[name];
-      }
-
-      void printSymbolTable(){
-        cout << "\n\nSymbol Table" << endl; 
-        for(auto it = table.cbegin(); it != table.cend(); ++it){
-          it->second->printEntry();
-        }
-      }
-        
-    };
-    
+  std::string getType(std::string op, std::string e1Type, std::string e2Type){
+    std::string type;
+    if((e1Type == "REAL" && (e2Type != "BOOLEAN")) || (e2Type == "REAL" && (e1Type != "BOOLEAN"))){
+      return "REAL";
+    }else if((e1Type == "INTEGER" && e2Type != "BOOLEAN") || (e2Type == "INTEGER" && e1Type != "BOOLEAN") ){
+      return "INTEGER";
+    }else if(e1Type == "CHAR" && e2Type == "CHAR"){
+      return "CHAR";
+    }else if(e1Type == "BOOLEAN" && e2Type == "BOOLEAN"){
+      return "BOOLEAN";
+    }   
+    std::cout << "SEMANTIC ERROR - TYPE MISMATCH" << std::endl;
+    exit(1);
   }
   
-SymbolTable::SymbolTable table;
-std::vector<std::string> installBuffer;
+  int serial = 0;
+  std::string newtemp(){
+    std::string temp;
+    temp = "" + std::to_string(serial) + "t";
+    serial++;
+    return temp;
+  }
 
 %}
+
+%code requires {
+  
+  #include <iostream>
+  #include <unordered_map>
+  #include <vector>
+  #include <string>
+  #include "SymbolTable.hpp"
+
+}
+
 
 %union{ 
   int    int_t;
@@ -91,6 +54,7 @@ std::vector<std::string> installBuffer;
   double double_t;
   char   char_t;
   char*  string_t;
+  Expression* expr_t;
 }
 
 %start program
@@ -130,6 +94,9 @@ std::vector<std::string> installBuffer;
 %token  MENOS
 %token  MULOP
 
+%type <expr_t> expr term factor_a factor simple_expr constant
+%type <string_t> RELOP NOT ADDOP MENOS MULOP
+
 %left   T_IGUAL MENOS
 %right  RELOP ADDOP MULOP
 
@@ -141,17 +108,17 @@ decl_list:    decl_list decl
               | decl
               ;
 
-decl:         ident_list T_DOISP type T_PVIRG
+decl:         ident_list T_DOISP type T_PVIRG {table.install(&installBuffer, type); installBuffer.clear();}
               ;
 
 ident_list:   ident_list T_VIRG IDENTIFIER {installBuffer.push_back($3);}
               | IDENTIFIER                 {installBuffer.push_back($1);}
               ;
 
-type :        INTEGER     {table.install(&installBuffer, "INTEGER"); installBuffer.clear();}
-              | REAL      {table.install(&installBuffer, "REAL");    installBuffer.clear();}
-              | BOOLEAN   {table.install(&installBuffer, "BOOLEAN"); installBuffer.clear();}
-              | CHAR      {table.install(&installBuffer, "CHAR");    installBuffer.clear();}
+type :        INTEGER     {type = "INTEGER"; }
+              | REAL      {type = "REAL";    }
+              | BOOLEAN   {type = "BOOLEAN"; }
+              | CHAR      {type = "CHAR";    }
               ;
 
 compound_stmt: BEGIN_T stmt_list END;
@@ -168,17 +135,17 @@ stmt:         assign_stmt   T_PVIRG
               | compound_stmt T_PVIRG
               ;
 
-assign_stmt:  IDENTIFIER T_IGUAL expr         {}
+assign_stmt:  IDENTIFIER T_IGUAL expr         { }
               ;
 
-if_stmt:      IF cond THEN stmt               {}
-              | IF cond THEN stmt ELSE stmt   {}
+if_stmt:      IF cond THEN stmt               { }
+              | IF cond THEN stmt ELSE stmt   { }
               ;
 
 cond:         expr
               ;
 
-loop_stmt:    stmt_prefix DO stmt_list stmt_suffix {}
+loop_stmt:    stmt_prefix DO stmt_list stmt_suffix { }
               ;
 
 stmt_prefix:  
@@ -189,9 +156,9 @@ stmt_suffix:  UNTIL cond
               | END
               ;
 
-read_stmt:    READ T_ABRE ident_list T_FECHA  {  }
+read_stmt:    READ T_ABRE ident_list T_FECHA  { }
 
-write_stmt:   WRITE T_ABRE expr_list T_FECHA  {  }
+write_stmt:   WRITE T_ABRE expr_list T_FECHA  { }
               ;
 
 expr_list:    expr
@@ -199,32 +166,32 @@ expr_list:    expr
               ;
 
 expr:         simple_expr                                    
-              | simple_expr RELOP simple_expr {  }
+              | simple_expr RELOP simple_expr { $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, &quadruplas); }
               ;
 
 simple_expr:  term
-              | simple_expr ADDOP term        { }
-              | simple_expr MENOS term        { }
+              | simple_expr ADDOP term        { $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, &quadruplas);}
+              | simple_expr MENOS term        { $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, &quadruplas);}
               ;
 
 term:         factor_a
-              | term MULOP factor_a           { }
+              | term MULOP factor_a           { $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, &quadruplas);}
               ;
 
-factor_a:     MENOS factor                    { }
+factor_a:     MENOS factor                    { $$ = new Expression($2, "-", newtemp(), &table, &quadruplas); }
               | factor
               ;
 
-factor:       IDENTIFIER                
-              | constant
-              | T_ABRE expr T_FECHA
-              | NOT factor
+factor:       IDENTIFIER              { $$ = new Expression($1, (table.get($1))->getType()); } 
+              | constant          
+              | T_ABRE expr T_FECHA   { $$ = $2; }
+              | NOT factor            { $$ = new Expression($2, "NOT", newtemp(), &table, &quadruplas); }
               ;
 
-constant:     INTEGER_CONSTANT 
-              | REAL_CONSTANT
-              | CHAR_CONSTANT
-              | BOOLEAN_CONSTANT
+constant:     INTEGER_CONSTANT    { $$ = new Expression($1, "INTEGER"); }
+              | REAL_CONSTANT     { $$ = new Expression($1, "REAL");    }
+              | CHAR_CONSTANT     { $$ = new Expression($1, "BOOLEAN"); }
+              | BOOLEAN_CONSTANT  { $$ = new Expression($1, "CHAR");    }
               ;
 
 %%
@@ -235,19 +202,5 @@ int main(){
 }
 
 void yyerror(char *s){
-  printf("\nERR - %s",s);
-}
-
-void updateSymbolVal(char* symbol, char* value){
-  std::string sym(symbol);
-  std::string val(value);
-  cout << endl << "[" << sym << "][" << val << "]" << endl;
-  symbolTable[sym] = val;
-}
-
-void printSymbolTable(){
-  cout << "\n\nSymbol Table" << endl; 
-  for(auto it = symbolTable.cbegin(); it != symbolTable.cend(); ++it){
-      std::cout << it->first << "  -  " << it->second << endl;
-  }
+  printf("\nERROR - %s",s);
 }

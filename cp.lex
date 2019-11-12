@@ -36,11 +36,11 @@ char_constant           "'"{ascii}"'"
 "read"          { return READ;    }
 "write"         { return WRITE;   }
 
-{integer_constant}  { yylval.int_t 		= atoi(yytext); return INTEGER_CONSTANT; }
-{real_constant}     { yylval.double_t	= atof(yytext); return REAL_CONSTANT;    }
-{char_constant}     { yylval.char_t 	= yytext[0]; 	return CHAR_CONSTANT;    }
-"false"             { yylval.bool_t 	= 0; 	  		return BOOLEAN_CONSTANT; }
-"true"              { yylval.bool_t 	= 1; 	  		return BOOLEAN_CONSTANT; }
+{integer_constant}  { yylval.string_t 	= strdup(yytext); 		return INTEGER_CONSTANT; }
+{real_constant}     { yylval.string_t	= strdup(yytext); 		return REAL_CONSTANT;    }
+{char_constant}     { yylval.string_t 	= strdup(yytext); 		return CHAR_CONSTANT;    }
+"false"             { yylval.string_t 	= strdup(yytext);  		return BOOLEAN_CONSTANT; }
+"true"              { yylval.string_t	= strdup(yytext);  		return BOOLEAN_CONSTANT; }
 
 ":"     { return T_DOISP; }
 ";"     { return T_PVIRG; }

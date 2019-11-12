@@ -1,18 +1,18 @@
 program teste01;
 
-a,b,i,e,d,f,g: integer;
-c,h: integer;
-a: real;
+a,b,c,d: integer;
+e,f: real;
+
 
 begin
 
-	c := 0;
-	a := 1 + 1.2E+2;
+	a := 0;
+	b := 1;
+	c := 2;
+	d := 3;
+	e := 4;
+	f := 5;
 
-	write(a);
-
-	while c<5 do
-		write(c);
-		c := c+1;
-	end;
+	f := b + c * d - e;
+	
 end

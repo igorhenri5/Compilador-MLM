@@ -876,28 +876,28 @@ YY_RULE_SETUP
 case 16:
 YY_RULE_SETUP
 #line 39 "cp.lex"
-{ yylval.int_t 		= atoi(yytext); return INTEGER_CONSTANT; }
+{ yylval.string_t 	= strdup(yytext); 		return INTEGER_CONSTANT; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 40 "cp.lex"
-{ yylval.double_t	= atof(yytext); return REAL_CONSTANT;    }
+{ yylval.string_t	= strdup(yytext); 		return REAL_CONSTANT;    }
 	YY_BREAK
 case 18:
 /* rule 18 can match eol */
 YY_RULE_SETUP
 #line 41 "cp.lex"
-{ yylval.char_t 	= yytext[0]; 	return CHAR_CONSTANT;    }
+{ yylval.string_t 	= strdup(yytext); 		return CHAR_CONSTANT;    }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 42 "cp.lex"
-{ yylval.bool_t 	= 0; 	  		return BOOLEAN_CONSTANT; }
+{ yylval.string_t 	= strdup(yytext);  		return BOOLEAN_CONSTANT; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 43 "cp.lex"
-{ yylval.bool_t 	= 1; 	  		return BOOLEAN_CONSTANT; }
+{ yylval.string_t	= strdup(yytext);  		return BOOLEAN_CONSTANT; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
