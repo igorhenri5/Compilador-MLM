@@ -130,7 +130,11 @@ type :        INTEGER     {type = "INTEGER"; }
               ;
 
 compound_stmt: block_aux BEGIN_T stmt_list END  {
-                                                    delete blockStack.top();
+                                                    Block *block;
+                                                    block = blockStack.top();
+                                                    blockStack.pop();
+                                                    blockStack.top()->addQuadruplas(block);
+                                                    delete block;
                                                     nivel--;
                                                 }
                 ;

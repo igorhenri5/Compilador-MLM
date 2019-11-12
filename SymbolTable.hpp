@@ -190,6 +190,14 @@
           this->quadruplas.push_back(quadrupla);
       }
 
+      void addQuadruplas(Block *block){
+          std::vector<Quadrupla*> *quadruplasTemp;
+          quadruplasTemp = block->getQuadruplas();
+          for(int i= 0; quadruplasTemp->size(); i++){
+              this->quadruplas.push_back(quadruplasTemp->at(i));
+          }
+      }
+
       std::vector<Quadrupla*>* getQuadruplas(){
           return &this->quadruplas;
       }
