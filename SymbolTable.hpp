@@ -219,8 +219,7 @@
     ~If(){
     }
     void commitLists(Quadruplas* quadruplas){
-      //Aqui que a mágica acontece, mas tem uma pa de coisa pra fazer aq
-      //quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()), "", ""));
+      quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(quadruplas->size()+trueList.size()+2), "", ""));
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList.at(i));
       }

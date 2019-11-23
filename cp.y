@@ -190,7 +190,6 @@ if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
                                                                                 if(pilhaFlowControl.size() > 1){
 
                                                                                   pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
-                                                                                  $$ = new FlowControl();
                                                                                   pilhaFlowControl.push_back($$);
                                                                                 }else{
                                                                                   blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
@@ -201,7 +200,7 @@ if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
               ;
 
 if_aux:                                             {
-                                                      $$ = new FlowControl();
+                                                      $$ = new If();
                                                       pilhaFlowControl.push_back($$);
                                                     }
               ;

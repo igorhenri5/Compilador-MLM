@@ -16,10 +16,11 @@ begin
 	f := b + c * d - e;
 
 	if (a > 5)
-	then a := b * c;
-	else write(b);
+	then 
+		a := c;
+	else 
+		a := d;
 
-	c := b + d;
-	write(c);
+	b := a;
 	
 end
