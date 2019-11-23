@@ -111,7 +111,6 @@
 
       void print(){
         std::cout << "\n\nQuadruplas" << std::endl;
-        //std::cout << "op | arg1 | arg2 | rslt" << std::endl;
         for(int i=0; this->quadruplas.size(); i++){
           std::cout << i  << " ";
           this->quadruplas.at(i)->print();
@@ -220,7 +219,6 @@
     FlowControl(){
     }
     ~FlowControl(){
-      //delete das lista ali
     }
     void setActiveList(std::string activeList){
       this->activeList = activeList;
@@ -233,8 +231,7 @@
       }
     }
     void commitLists(Quadruplas* quadruplas){
-      //Aqui que a mágica acontece, mas tem uma pa de coisa pra fazer aq
-      //quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()), "", ""));
+      quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(quadruplas->size()+trueList.size()+2), "", ""));
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList.at(i));
       }

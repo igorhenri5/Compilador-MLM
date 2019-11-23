@@ -2,8 +2,6 @@
   #include "SymbolTable.hpp"
   using namespace std;
 
-// int insideFlowControl = 0;
-
   void yyerror(char *s);
   int yylex();
 
