@@ -99,7 +99,7 @@
 %token  MULOP
 
 %type <expr_t> expr_list cond expr term factor_a factor simple_expr constant
-%type <flow_t> if_stmt if_aux
+%type <flow_t> if_stmt if_aux loop_stmt loop_prefix loop_suffix
 %type <string_t> RELOP NOT ADDOP MENOS MULOP
 %type <block_t> compound_stmt, block_aux
 
@@ -188,7 +188,6 @@ if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
                                                                               }
               | if_aux IF cond THEN if_true_list stmt if_false_list ELSE stmt {
                                                                                 if(pilhaFlowControl.size() > 1){
-
                                                                                   pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
                                                                                   pilhaFlowControl.push_back($$);
                                                                                 }else{
@@ -214,14 +213,24 @@ if_false_list:                                      { pilhaFlowControl.back()->s
 cond:         expr
               ;
 
-loop_stmt:    stmt_prefix DO stmt_list stmt_suffix  { }
+loop_stmt:    loop_prefix DO stmt_list loop_suffix  { 
+                                                      //
+                                                      // 
+                                                      //
+                                                    }
               ;
 
-stmt_prefix:
-              | WHILE cond
+loop_prefix:
+              | WHILE cond                          {
+                                                      $$ = new While();
+                                                      pilhaFlowControl.push_back($$);
+                                                    }
               ;
 
-stmt_suffix:  UNTIL cond
+loop_suffix:  UNTIL cond                            {
+                                                      $$ = new DoUntil();
+                                                      pilhaFlowControl.push_back($$);
+                                                    }
               | END
               ;
 

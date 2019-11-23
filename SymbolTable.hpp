@@ -237,8 +237,27 @@
     ~While(){
     }
     void commitLists(Quadruplas* quadruplas){
-      //Aqui que a mágica acontece, mas tem uma pa de coisa pra fazer aq
-      //quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()), "", ""));
+    //shrud
+      quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(quadruplas->size()+trueList.size()+2), "", ""));
+      for(int i=0; i<trueList.size() ;i++){
+        quadruplas->push_back(trueList.at(i));
+      }
+      quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()+falseList.size()), "", ""));
+      for(int i=0; i<falseList.size() ;i++){
+        quadruplas->push_back(falseList.at(i));
+      }
+    }
+  };
+
+  class DoUntil : public FlowControl{
+    public:
+    DoUntil(){
+    }
+    ~DoUntil(){
+    }
+    void commitLists(Quadruplas* quadruplas){
+    //shrud
+      quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(quadruplas->size()+trueList.size()+2), "", ""));
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList.at(i));
       }
