@@ -40,9 +40,9 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 43 "cp.y" /* yacc.c:1909  */
+#line 42 "cp.y" /* yacc.c:1909  */
 
-  
+
   #include <iostream>
   #include <unordered_map>
   #include <vector>
@@ -128,8 +128,8 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 54 "cp.y" /* yacc.c:1909  */
- 
+#line 53 "cp.y" /* yacc.c:1909  */
+
   int    int_t;
   int    bool_t;
   double double_t;
@@ -137,8 +137,9 @@ union YYSTYPE
   char*  string_t;
   Expression* expr_t;
   FlowControl* flow_t;
+  Block * block_t;
 
-#line 142 "y.tab.h" /* yacc.c:1909  */
+#line 143 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

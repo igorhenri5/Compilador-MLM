@@ -179,7 +179,6 @@ assign_stmt:  IDENTIFIER T_IGUAL expr               {
 if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
                                                                                 if(pilhaFlowControl.size() > 1){
                                                                                   pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
-                                                                                  $$ = new FlowControl();
                                                                                   pilhaFlowControl.push_back($$);
                                                                                 }else{
                                                                                   blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
@@ -252,9 +251,9 @@ expr_list:    expr
 expr:         simple_expr
               | simple_expr RELOP simple_expr { //SHRUD -- se tá dentro de algum flowControl não é pra adicionar direto nas quadruplas, mas na trueList ou falseList -- da pra fazer isso criando mais construtor com &quadruplas viran &pilhaFlowlist e fazendo addQuadrupla pelo objeto flowControl
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               ;
@@ -262,16 +261,16 @@ expr:         simple_expr
 simple_expr:  term
               | simple_expr ADDOP term        {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               | simple_expr MENOS term        {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               ;
@@ -279,18 +278,18 @@ simple_expr:  term
 term:         factor_a
               | term MULOP factor_a           {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               ;
 
 factor_a:     MENOS factor                    {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($2, "-", newtemp(), &table, blockStack.top());
+                                                  $$ = new Expression($2, "-", newtemp(), &table, blockStack.top()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($2, "-", newtemp(), &table, blockStack.top());
+                                                  $$ = new Expression($2, "-", newtemp(), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               | factor
@@ -299,7 +298,7 @@ factor_a:     MENOS factor                    {
 factor:       IDENTIFIER              { $$ = new Expression($1, (table.get($1))->getType()); }
               | constant
               | T_ABRE expr T_FECHA   { $$ = $2; }
-              | NOT factor            { $$ = new Expression($2, "NOT", newtemp(), &table, blockStack.top()); }
+              | NOT factor            { $$ = new Expression($2, "NOT", newtemp(), &table, blockStack.top()->getQuadruplas()); }
               ;
 
 constant:     INTEGER_CONSTANT    { $$ = new Expression($1, "INTEGER"); }
