@@ -209,11 +209,12 @@ loop_stmt:    loop_prefix DO stmt_list loop_suffix  {
                                                       pilhaFlowControl.pop_back();
                                                       if(pilhaFlowControl.size() > 0){
                                                           flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
+                                                          delete flowControl;
                                                       }
                                                       else{
                                                           flowControl->commitLists(blockStack.top()->getQuadruplas());
                                                       }
-                                                      delete flowControl;
+                                                      
                                                     }
               ;
 
