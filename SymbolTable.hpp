@@ -111,15 +111,14 @@
 
       void print(){
         std::cout << "\n\nQuadruplas" << std::endl;
-        //std::cout << "op | arg1 | arg2 | rslt" << std::endl;
-        for(int i=0; this->quadruplas.size(); i++){
+        for(int i=0; i < this->quadruplas.size(); i++){
           std::cout << i  << " ";
           this->quadruplas.at(i)->print();
         }
       }
 
       void deleteAll(){
-          for(int i=0; this->quadruplas.size(); i++){
+          for(int i=0; i < this->quadruplas.size(); i++){
             delete this->quadruplas.at(i);
           }
       }

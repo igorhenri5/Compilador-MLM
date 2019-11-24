@@ -71,11 +71,11 @@ char_constant           "'"{ascii}"'"
 
 {identifier} { yylval.string_t = strdup(yytext);  return IDENTIFIER; }
 
-{stoken}     { ;}
+\n     { yylineno++;}
 .       	 { ;}
 
 %%
 
 int yywrap(void){
-    return 1;    
+    return 1;
 }

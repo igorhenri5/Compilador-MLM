@@ -4,8 +4,12 @@
 
 // int insideFlowControl = 0;
 
+  extern int yylineno;
+
   void yyerror(char *s);
   int yylex();
+  std::string getType(std::string op, std::string e1Type, std::string e2Type);
+  std::string newtemp();
 
   SymbolTable::SymbolTable table;
   std::stack<Block*> blockStack;
@@ -14,30 +18,8 @@
   std::vector<std::string> indentifierList;
   std::string type;
   int nivel = 0;
-
-  std::string getType(std::string op, std::string e1Type, std::string e2Type){
-    std::string type;
-    if((e1Type == "REAL" && (e2Type != "BOOLEAN")) || (e2Type == "REAL" && (e1Type != "BOOLEAN"))){
-      return "REAL";
-    }else if((e1Type == "INTEGER" && e2Type != "BOOLEAN") || (e2Type == "INTEGER" && e1Type != "BOOLEAN") ){
-      return "INTEGER";
-    }else if(e1Type == "CHAR" && e2Type == "CHAR"){
-      return "CHAR";
-    }else if(e1Type == "BOOLEAN" && e2Type == "BOOLEAN"){
-      return "BOOLEAN";
-    }
-    std::cout << "SEMANTIC ERROR - TYPE MISMATCH" << std::endl;
-    exit(1);
-  }
-
+  bool semanticError = false;
   int serial = 0;
-  std::string newtemp(){
-    std::string temp;
-    temp = "" + std::to_string(serial) + "t";
-    serial++;
-    return temp;
-  }
-
 %}
 
 %code requires {
@@ -111,8 +93,10 @@
 program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt    {
                                                                         table.printSymbolTable();
                                                                         Block *block = $5;
-                                                                        block->getQuadruplas()->print();
-                                                                        block->getQuadruplas()->deleteAll();
+                                                                        Quadruplas *quadruplas;
+                                                                        quadruplas = block->getQuadruplas();
+                                                                        quadruplas->print();
+                                                                        quadruplas->deleteAll();
                                                                         delete block;
                                                                     }
               ;
@@ -327,11 +311,11 @@ factor:       IDENTIFIER              { $$ = new Expression($1, (table.get($1))-
               | constant
               | T_ABRE expr T_FECHA   { $$ = $2; }
               | NOT factor            {
-                												if(pilhaFlowControl.size())
-                													$$ = new Expression($2, "NOT", newtemp(), &table, pilhaFlowControl.back()->getQuadruplas());
-                												else
-                                          $$ = new Expression($2, "NOT", newtemp(), &table, blockStack.top()->getQuadruplas());
-              												}
+										if(pilhaFlowControl.size())
+											$$ = new Expression($2, "NOT", newtemp(), &table, pilhaFlowControl.back()->getQuadruplas());
+										else
+                                            $$ = new Expression($2, "NOT", newtemp(), &table, blockStack.top()->getQuadruplas());
+										}
               ;
 
 constant:     INTEGER_CONSTANT    { $$ = new Expression($1, "INTEGER"); }
@@ -342,11 +326,34 @@ constant:     INTEGER_CONSTANT    { $$ = new Expression($1, "INTEGER"); }
 
 %%
 
+
+
+std::string getType(std::string op, std::string e1Type, std::string e2Type){
+  std::string type;
+  if((e1Type == "REAL" && (e2Type != "BOOLEAN")) || (e2Type == "REAL" && (e1Type != "BOOLEAN"))){
+    return "REAL";
+  }else if((e1Type == "INTEGER" && e2Type != "BOOLEAN") || (e2Type == "INTEGER" && e1Type != "BOOLEAN") ){
+    return "INTEGER";
+  }else if(e1Type == "CHAR" && e2Type == "CHAR"){
+    return "CHAR";
+  }else if(e1Type == "BOOLEAN" && e2Type == "BOOLEAN"){
+    return "BOOLEAN";
+  }
+  std::cout << "Semantic error - type mismatch, on line " << yylineno << std::endl;
+  semanticError = true;
+}
+
+std::string newtemp(){
+  std::string temp;
+  temp = "" + std::to_string(serial) + "t";
+  serial++;
+  return temp;
+}
+
 int main(){
-  int i;
-  return yyparse();
+    return yyparse() != 0 || semanticError;
 }
 
 void yyerror(char *s){
-  printf("\nERROR - %s",s);
+  std::cout << "Sintatic error - " << s << ", on line " << yylineno << std::endl;
 }
