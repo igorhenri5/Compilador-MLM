@@ -245,7 +245,7 @@
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList.at(i));
       }
-      quadruplas->push_back(new Quadrupla("GOTO", std::to_string(start), "", ""));
+      quadruplas->push_back(new Quadrupla("GOTO", std::to_string(start-1), "", ""));
     }
   };
 
