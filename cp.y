@@ -168,11 +168,12 @@ if_stmt:      if_aux if_true_list stmt                      {
                                                                 pilhaFlowControl.pop_back();
                                                                 if(pilhaFlowControl.size() > 0){
                                                                     flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
+                                                                    delete flowControl;
                                                                 }
                                                                 else{
                                                                     flowControl->commitLists(blockStack.top()->getQuadruplas());
                                                                 }
-                                                                //delete flowControl;
+
                                                             }
               | if_aux if_true_list stmt if_false_list stmt {
                                                               FlowControl *flowControl;
@@ -180,11 +181,11 @@ if_stmt:      if_aux if_true_list stmt                      {
                                                               pilhaFlowControl.pop_back();
                                                               if(pilhaFlowControl.size() > 0){
                                                                   flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
+                                                                  delete flowControl;
                                                               }
                                                               else{
                                                                   flowControl->commitLists(blockStack.top()->getQuadruplas());
                                                               }
-                                                              //delete flowControl;
                                                             }
               ;
 
