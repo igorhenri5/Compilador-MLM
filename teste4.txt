@@ -21,6 +21,10 @@ begin
 	else 
 		a := d;
 
+	while (a > 5) do
+		a := a - 1;
+	end;
+
 	b := a;
 	
 end

@@ -1489,7 +1489,7 @@ yyreduce:
     {
                                                                                 if(pilhaFlowControl.size() > 1){
                                                                                   pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", (yyvsp[-3].expr_t)->result, "_", "_"));
-                                                                                  pilhaFlowControl.push_back((yyval.flow_t));
+                                                                                  //pilhaFlowControl.push_back($$);
                                                                                 }else{
                                                                                   blockStack.top()->addQuadrupla(new Quadrupla("IF", (yyvsp[-3].expr_t)->result, "_", "_"));
                                                                                   pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
@@ -1504,7 +1504,7 @@ yyreduce:
     {
                                                                                 if(pilhaFlowControl.size() > 1){
                                                                                   pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", (yyvsp[-6].expr_t)->result, "_", "_"));
-                                                                                  pilhaFlowControl.push_back((yyval.flow_t));
+                                                                                  //pilhaFlowControl.push_back($$);
                                                                                 }else{
                                                                                   blockStack.top()->addQuadrupla(new Quadrupla("IF", (yyvsp[-6].expr_t)->result, "_", "_"));
                                                                                   pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
@@ -1537,16 +1537,16 @@ yyreduce:
 
   case 29:
 #line 218 "cp.y" /* yacc.c:1646  */
-    {/*
+    {
                                                       if(pilhaFlowControl.size() > 1){
-                                                        pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
-                                                        pilhaFlowControl.push_back($$);
+                                                        //pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
+                                                        //pilhaFlowControl.push_back($$);
                                                       }else{
-                                                        blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
+                                                        //blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
                                                         pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
                                                         pilhaFlowControl.pop_back();
                                                       }
-                                                    */}
+                                                    }
 #line 1551 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1559,8 +1559,8 @@ yyreduce:
   case 31:
 #line 231 "cp.y" /* yacc.c:1646  */
     {
-                                                      // $$ = new While($2);
-                                                      // pilhaFlowControl.push_back($$);
+                                                      (yyval.flow_t) = new While((yyvsp[0].expr_t));
+                                                      pilhaFlowControl.push_back((yyval.flow_t));
                                                     }
 #line 1566 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -1568,8 +1568,8 @@ yyreduce:
   case 32:
 #line 237 "cp.y" /* yacc.c:1646  */
     {
-                                                      // $$ = new DoUntil($2);
-                                                      // pilhaFlowControl.push_back($$);
+                                                      (yyval.flow_t) = new DoUntil((yyvsp[0].expr_t));
+                                                      pilhaFlowControl.push_back((yyval.flow_t));
                                                     }
 #line 1575 "y.tab.c" /* yacc.c:1646  */
     break;

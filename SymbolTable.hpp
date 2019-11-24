@@ -232,39 +232,38 @@
 
 	class While : public FlowControl{
     public:
-    While(){
+    Expression* cond;
+    While(Expression* cond){
+      this->cond = cond;
+      this->activeList = "true";
     }
     ~While(){
     }
     void commitLists(Quadruplas* quadruplas){
-    //shrud
+      int start = quadruplas->size();
       quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(quadruplas->size()+trueList.size()+2), "", ""));
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList.at(i));
       }
-      quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()+falseList.size()), "", ""));
-      for(int i=0; i<falseList.size() ;i++){
-        quadruplas->push_back(falseList.at(i));
-      }
+      quadruplas->push_back(new Quadrupla("GOTO", std::to_string(start-1), "", ""));
     }
   };
 
   class DoUntil : public FlowControl{
     public:
-    DoUntil(){
+    Expression* cond;
+    DoUntil(Expression* cond){
+      this->cond = cond;
+      this->activeList = "true";
     }
     ~DoUntil(){
     }
     void commitLists(Quadruplas* quadruplas){
-    //shrud
-      quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(quadruplas->size()+trueList.size()+2), "", ""));
+      int start = quadruplas->size();
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList.at(i));
       }
-      quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()+falseList.size()), "", ""));
-      for(int i=0; i<falseList.size() ;i++){
-        quadruplas->push_back(falseList.at(i));
-      }
+      quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(start), "", ""));
     }
   };
 
