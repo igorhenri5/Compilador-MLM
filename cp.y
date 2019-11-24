@@ -178,22 +178,22 @@ assign_stmt:  IDENTIFIER T_IGUAL expr               {
               ;
 
 // tá quebrado pra if aninhado, tentei mas to querendo dormir ja nao to mais raciocinando direito
-if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
+if_stmt:      IF cond if_aux if_true_list THEN stmt                            {
                                                                                 if(pilhaFlowControl.size() > 1){
-                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
+                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $2->result, "_", "_"));
                                                                                   //pilhaFlowControl.push_back($$);
                                                                                 }else{
-                                                                                  blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
+                                                                                  blockStack.top()->addQuadrupla(new Quadrupla("IF", $2->result, "_", "_"));
                                                                                   pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
                                                                                   pilhaFlowControl.pop_back();
                                                                                 }
                                                                               }
-              | if_aux IF cond THEN if_true_list stmt if_false_list ELSE stmt {
+              | IF cond if_aux THEN if_true_list stmt if_false_list ELSE stmt {
                                                                                 if(pilhaFlowControl.size() > 1){
-                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
+                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $2->result, "_", "_"));
                                                                                   //pilhaFlowControl.push_back($$);
                                                                                 }else{
-                                                                                  blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
+                                                                                  blockStack.top()->addQuadrupla(new Quadrupla("IF", $2->result, "_", "_"));
                                                                                   pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
                                                                                   pilhaFlowControl.pop_back();
                                                                                 }
