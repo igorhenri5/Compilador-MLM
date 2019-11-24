@@ -178,31 +178,18 @@ assign_stmt:  IDENTIFIER T_IGUAL expr               {
               ;
 
 // tá quebrado pra if aninhado, tentei mas to querendo dormir ja nao to mais raciocinando direito
-if_stmt:      IF cond if_aux if_true_list THEN stmt                            {
-                                                                                if(pilhaFlowControl.size() > 1){
-                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $2->result, "_", "_"));
-                                                                                  //pilhaFlowControl.push_back($$);
-                                                                                }else{
-                                                                                  blockStack.top()->addQuadrupla(new Quadrupla("IF", $2->result, "_", "_"));
-                                                                                  pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
-                                                                                  pilhaFlowControl.pop_back();
-                                                                                }
-                                                                              }
-              | IF cond if_aux THEN if_true_list stmt if_false_list ELSE stmt {
-                                                                                if(pilhaFlowControl.size() > 1){
-                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $2->result, "_", "_"));
-                                                                                  //pilhaFlowControl.push_back($$);
-                                                                                }else{
-                                                                                  blockStack.top()->addQuadrupla(new Quadrupla("IF", $2->result, "_", "_"));
-                                                                                  pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
-                                                                                  pilhaFlowControl.pop_back();
-                                                                                }
-                                                                              }
+if_stmt:      if_aux if_true_list THEN stmt                           {
+                                                                        pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
+                                                                        pilhaFlowControl.pop_back();
+                                                                      }
+              | if_aux THEN if_true_list stmt if_false_list ELSE stmt {
+                                                                        pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
+                                                                        pilhaFlowControl.pop_back();
+                                                                      }
               ;
 
-if_aux:                                             {
-                                                      $$ = new If();
-                                                      pilhaFlowControl.push_back($$);
+if_aux:       IF cond                               {                                                     
+                                                      pilhaFlowControl.push_back(new If($2));
                                                     }
               ;
 
@@ -216,29 +203,23 @@ cond:         expr
               ;
 
 loop_stmt:    loop_prefix DO stmt_list loop_suffix  {
-                                                      if(pilhaFlowControl.size() > 1){
-                                                        //pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
-                                                        //pilhaFlowControl.push_back($$);
-                                                      }else{
-                                                        //blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
-                                                        pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
-                                                        pilhaFlowControl.pop_back();
-                                                      }
+                                                      pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
+                                                      pilhaFlowControl.pop_back();
                                                     }
               ;
 
-loop_prefix:                                        {$$ = NULL;}
+loop_prefix:                                        { 
+                                                      pilhaFlowControl.push_back(new DoUntil()); 
+                                                    }
               | WHILE cond                          {
-                                                      $$ = new While($2);
-                                                      pilhaFlowControl.push_back($$);
+                                                      pilhaFlowControl.push_back(new While($2));
                                                     }
               ;
 
 loop_suffix:  UNTIL cond                            {
-                                                      $$ = new DoUntil($2);
-                                                      pilhaFlowControl.push_back($$);
-                                                    }
-              | END                                 {$$ = NULL;}
+                                                      ((DoUntil*)pilhaFlowControl.back())->setCondition($2);
+                                                    }                            
+              | END                                 
               ;
 
 read_stmt:    READ T_ABRE ident_list T_FECHA  {
@@ -336,8 +317,8 @@ factor:       IDENTIFIER              { $$ = new Expression($1, (table.get($1))-
 
 constant:     INTEGER_CONSTANT    { $$ = new Expression($1, "INTEGER"); }
               | REAL_CONSTANT     { $$ = new Expression($1, "REAL");    }
-              | CHAR_CONSTANT     { $$ = new Expression($1, "BOOLEAN"); }
-              | BOOLEAN_CONSTANT  { $$ = new Expression($1, "CHAR");    }
+              | CHAR_CONSTANT     { $$ = new Expression($1, "CHAR"); }
+              | BOOLEAN_CONSTANT  { $$ = new Expression($1, "BOOLEAN");    }
               ;
 
 %%
