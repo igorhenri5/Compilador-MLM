@@ -162,14 +162,14 @@ assign_stmt:  IDENTIFIER T_IGUAL expr               {
               ;
 
 // tá quebrado pra if aninhado, tentei mas to querendo dormir ja nao to mais raciocinando direito
-if_stmt:      if_aux if_true_list THEN stmt                           {
-                                                                        pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
-                                                                        pilhaFlowControl.pop_back();
-                                                                      }
-              | if_aux THEN if_true_list stmt if_false_list ELSE stmt {
-                                                                        pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
-                                                                        pilhaFlowControl.pop_back();
-                                                                      }
+if_stmt:      if_aux if_true_list stmt                      {
+                                                              pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
+                                                              pilhaFlowControl.pop_back();
+                                                            }
+              | if_aux if_true_list stmt if_false_list stmt {
+                                                              pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
+                                                              pilhaFlowControl.pop_back();
+                                                            }
               ;
 
 if_aux:       IF cond                               {                                                     
@@ -177,10 +177,10 @@ if_aux:       IF cond                               {
                                                     }
               ;
 
-if_true_list:                                       { pilhaFlowControl.back()->setActiveList("true"); }
+if_true_list: THEN                                  { pilhaFlowControl.back()->setActiveList("true"); }
               ;
 
-if_false_list:                                      { pilhaFlowControl.back()->setActiveList("false"); }
+if_false_list: ELSE                                 { pilhaFlowControl.back()->setActiveList("false"); }
               ;
 
 cond:         expr

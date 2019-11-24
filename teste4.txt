@@ -21,13 +21,15 @@ begin
 	else 
 		a := d;
 
-	while (a > 5) do
-		a := a - 1;
-	end;
-
-	do
-		a := a + 1;
-	until (a < 10);
+	if (a > 10)
+	then
+		while (a > 5) do
+			a := a - 1;
+		end;
+	else		
+		do
+			a := a + 1;
+		until (a < 10);
 
 	b := a;
 	
