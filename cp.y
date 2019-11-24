@@ -82,7 +82,7 @@
 %token  MULOP
 
 %type <expr_t> expr_list cond expr term factor_a factor simple_expr constant
-%type <flow_t> if_stmt if_aux loop_stmt loop_prefix loop_suffix
+%type <flow_t> if_stmt if_aux loop_stmt loop_prefix
 %type <string_t> RELOP NOT ADDOP MENOS MULOP
 %type <block_t> compound_stmt block_aux
 
@@ -163,16 +163,32 @@ assign_stmt:  IDENTIFIER T_IGUAL expr               {
 
 // tá quebrado pra if aninhado, tentei mas to querendo dormir ja nao to mais raciocinando direito
 if_stmt:      if_aux if_true_list stmt                      {
-                                                              pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
-                                                              pilhaFlowControl.pop_back();
+                                                                FlowControl *flowControl;
+                                                                flowControl = pilhaFlowControl.back();
+                                                                pilhaFlowControl.pop_back();
+                                                                if(pilhaFlowControl.size() > 0){
+                                                                    flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
+                                                                }
+                                                                else{
+                                                                    flowControl->commitLists(blockStack.top()->getQuadruplas());
+                                                                }
+                                                                //delete flowControl;
                                                             }
               | if_aux if_true_list stmt if_false_list stmt {
-                                                              pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
+                                                              FlowControl *flowControl;
+                                                              flowControl = pilhaFlowControl.back();
                                                               pilhaFlowControl.pop_back();
+                                                              if(pilhaFlowControl.size() > 0){
+                                                                  flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
+                                                              }
+                                                              else{
+                                                                  flowControl->commitLists(blockStack.top()->getQuadruplas());
+                                                              }
+                                                              //delete flowControl;
                                                             }
               ;
 
-if_aux:       IF cond                               {                                                     
+if_aux:       IF cond                               {
                                                       pilhaFlowControl.push_back(new If($2));
                                                     }
               ;
@@ -187,13 +203,21 @@ cond:         expr
               ;
 
 loop_stmt:    loop_prefix DO stmt_list loop_suffix  {
-                                                      pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
+                                                      FlowControl *flowControl;
+                                                      flowControl = pilhaFlowControl.back();
                                                       pilhaFlowControl.pop_back();
+                                                      if(pilhaFlowControl.size() > 0){
+                                                          flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
+                                                      }
+                                                      else{
+                                                          flowControl->commitLists(blockStack.top()->getQuadruplas());
+                                                      }
+                                                      delete flowControl;
                                                     }
               ;
 
-loop_prefix:                                        { 
-                                                      pilhaFlowControl.push_back(new DoUntil()); 
+loop_prefix:                                        {
+                                                      pilhaFlowControl.push_back(new DoUntil());
                                                     }
               | WHILE cond                          {
                                                       pilhaFlowControl.push_back(new While($2));
@@ -202,8 +226,8 @@ loop_prefix:                                        {
 
 loop_suffix:  UNTIL cond                            {
                                                       ((DoUntil*)pilhaFlowControl.back())->setCondition($2);
-                                                    }                            
-              | END                                 
+                                                    }
+              | END
               ;
 
 read_stmt:    READ T_ABRE ident_list T_FECHA  {
