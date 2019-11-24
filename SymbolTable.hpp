@@ -212,12 +212,16 @@
   };
 
 	class If : public FlowControl{
+    private:
+    Expression* cond;
     public:
-    If(){
+    If(Expression* cond){
+        this->cond = cond;
     }
     ~If(){
     }
     void commitLists(Quadruplas* quadruplas){
+      quadruplas->push_back(new Quadrupla("<IF>", "", "", ""));
       quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(quadruplas->size()+trueList.size()+2), "", ""));
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList.at(i));
@@ -230,8 +234,9 @@
   };
 
 	class While : public FlowControl{
-    public:
+    private:
     Expression* cond;
+    public:
     While(Expression* cond){
       this->cond = cond;
       this->activeList = "true";
@@ -240,6 +245,7 @@
     }
     void commitLists(Quadruplas* quadruplas){
       int start = quadruplas->size();
+      quadruplas->push_back(new Quadrupla("<WHILE>", "", "", ""));
       quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(quadruplas->size()+trueList.size()+2), "", ""));
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList.at(i));
@@ -249,19 +255,24 @@
   };
 
   class DoUntil : public FlowControl{
-    public:
+    private:
     Expression* cond;
-    DoUntil(Expression* cond){
-      this->cond = cond;
+    public:
+    DoUntil(){
       this->activeList = "true";
     }
     ~DoUntil(){
     }
+    void setCondition(Expression* cond){
+      this->cond = cond;
+    }
     void commitLists(Quadruplas* quadruplas){
       int start = quadruplas->size();
+      quadruplas->push_back(new Quadrupla("<DO>", "", "", ""));
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList.at(i));
       }
+      quadruplas->push_back(new Quadrupla("<UNTIL>", "", "", ""));
       quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(start), "", ""));
     }
   };
