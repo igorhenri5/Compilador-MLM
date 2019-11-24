@@ -10,7 +10,8 @@
   SymbolTable::SymbolTable table;
   std::stack<Block*> blockStack;
   std::vector<FlowControl*> pilhaFlowControl;
-  std::vector<std::string> installBuffer;
+  std::vector<Expression*> expressionList;
+  std::vector<std::string> indentifierList;
   std::string type;
   int nivel = 0;
 
@@ -120,11 +121,11 @@ decl_list:    decl_list decl
               | decl
               ;
 
-decl:         ident_list T_DOISP type T_PVIRG {table.install(&installBuffer, type); installBuffer.clear();}
+decl:         ident_list T_DOISP type T_PVIRG {table.install(&indentifierList, type); indentifierList.clear();}
               ;
 
-ident_list:   ident_list T_VIRG IDENTIFIER {installBuffer.push_back($3);}
-              | IDENTIFIER                 {installBuffer.push_back($1);}
+ident_list:   ident_list T_VIRG IDENTIFIER {indentifierList.push_back($3);}
+              | IDENTIFIER                 {indentifierList.push_back($1);}
               ;
 
 type :        INTEGER     {type = "INTEGER"; }
@@ -172,6 +173,7 @@ assign_stmt:  IDENTIFIER T_IGUAL expr               {
                                                       }else{
                                                         blockStack.top()->addQuadrupla(new Quadrupla(":=", $3->result, "", $1));
                                                       }
+                                                      delete $3;
                                                     }
               ;
 
@@ -213,53 +215,71 @@ if_false_list:                                      { pilhaFlowControl.back()->s
 cond:         expr
               ;
 
-loop_stmt:    loop_prefix DO stmt_list loop_suffix  {
-                                                      //
-                                                      //
-                                                      //
-                                                    }
+loop_stmt:    loop_prefix DO stmt_list loop_suffix  {/*
+                                                      if(pilhaFlowControl.size() > 1){
+                                                        pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
+                                                        pilhaFlowControl.push_back($$);
+                                                      }else{
+                                                        blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
+                                                        pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
+                                                        pilhaFlowControl.pop_back();
+                                                      }
+                                                    */}
               ;
 
-loop_prefix:
+loop_prefix:                                        {$$ = NULL;}
               | WHILE cond                          {
-                                                      $$ = new While();
-                                                      pilhaFlowControl.push_back($$);
+                                                      // $$ = new While($2);
+                                                      // pilhaFlowControl.push_back($$);
                                                     }
               ;
 
 loop_suffix:  UNTIL cond                            {
-                                                      $$ = new DoUntil();
-                                                      pilhaFlowControl.push_back($$);
+                                                      // $$ = new DoUntil($2);
+                                                      // pilhaFlowControl.push_back($$);
                                                     }
-              | END
+              | END                                 {$$ = NULL;}
               ;
 
 read_stmt:    READ T_ABRE ident_list T_FECHA  {
                                                 if(pilhaFlowControl.size()){
-                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("READ",  "_", "", ""));
-                                                }else{
-                                                  blockStack.top()->addQuadrupla(new Quadrupla("READ",  "_", "", ""));
+                                                	for(auto it = indentifierList.begin(); it != indentifierList.end(); it++){
+                                                  	pilhaFlowControl.back()->addQuadrupla(new Quadrupla("READ",  *it, "", ""));
+                                                  }
                                                 }
+                                                else{
+                                               		for(auto it = indentifierList.begin(); it != indentifierList.end(); it++){
+                                                  	blockStack.top()->addQuadrupla(new Quadrupla("READ",  *it, "", ""));
+                                                  }
+                                                }
+                                                indentifierList.clear();
                                               }
               ;
 
 write_stmt:   WRITE T_ABRE expr_list T_FECHA  {
                                                 if(pilhaFlowControl.size()){
-                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("WRITE",  "_", "", ""));
+                                                	for(auto it = expressionList.begin(); it != expressionList.end(); it++){
+                                                  	pilhaFlowControl.back()->addQuadrupla(new Quadrupla("WRITE",  (*it)->result, "", ""));
+                                                    delete *it;
+                                                  }
                                                 }else{
-                                                  blockStack.top()->addQuadrupla(new Quadrupla("WRITE",  "_", "", ""));
+                                                	for(auto it = expressionList.begin(); it != expressionList.end(); it++){
+                                                  	blockStack.top()->addQuadrupla(new Quadrupla("WRITE",  (*it)->result, "", ""));
+                                                    delete *it;
+                                                  }
                                                 }
+                                                expressionList.clear();
                                               }
               ;
 
-expr_list:    expr
-              | expr_list T_VIRG expr
+expr_list:    expr											{expressionList.push_back($1);}
+              | expr_list T_VIRG expr		{expressionList.push_back($3);}
               ;
 
 expr:         simple_expr
               | simple_expr RELOP simple_expr { //SHRUD -- se tá dentro de algum flowControl não é pra adicionar direto nas quadruplas, mas na trueList ou falseList -- da pra fazer isso criando mais construtor com &quadruplas viran &pilhaFlowlist e fazendo addQuadrupla pelo objeto flowControl
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
                                                   $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
@@ -269,14 +289,14 @@ expr:         simple_expr
 simple_expr:  term
               | simple_expr ADDOP term        {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
+                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
                                                   $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               | simple_expr MENOS term        {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
+                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
                                                   $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
@@ -286,7 +306,7 @@ simple_expr:  term
 term:         factor_a
               | term MULOP factor_a           {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
+                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
                                                   $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
@@ -295,7 +315,7 @@ term:         factor_a
 
 factor_a:     MENOS factor                    {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($2, "-", newtemp(), &table, blockStack.top()->getQuadruplas());
+                                                  $$ = new Expression($2, "-", newtemp(), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
                                                   $$ = new Expression($2, "-", newtemp(), &table, blockStack.top()->getQuadruplas());
                                                 }
@@ -306,7 +326,12 @@ factor_a:     MENOS factor                    {
 factor:       IDENTIFIER              { $$ = new Expression($1, (table.get($1))->getType()); }
               | constant
               | T_ABRE expr T_FECHA   { $$ = $2; }
-              | NOT factor            { $$ = new Expression($2, "NOT", newtemp(), &table, blockStack.top()->getQuadruplas()); }
+              | NOT factor            {
+                												if(pilhaFlowControl.size())
+                													$$ = new Expression($2, "NOT", newtemp(), &table, pilhaFlowControl.back()->getQuadruplas());
+                												else
+                                          $$ = new Expression($2, "NOT", newtemp(), &table, blockStack.top()->getQuadruplas());
+              												}
               ;
 
 constant:     INTEGER_CONSTANT    { $$ = new Expression($1, "INTEGER"); }
