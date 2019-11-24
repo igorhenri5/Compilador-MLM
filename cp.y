@@ -179,7 +179,7 @@ assign_stmt:  IDENTIFIER T_IGUAL expr               {
 if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
                                                                                 if(pilhaFlowControl.size() > 1){
                                                                                   pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
-                                                                                  pilhaFlowControl.push_back($$);
+                                                                                  //pilhaFlowControl.push_back($$);
                                                                                 }else{
                                                                                   blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
                                                                                   pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
@@ -189,7 +189,7 @@ if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
               | if_aux IF cond THEN if_true_list stmt if_false_list ELSE stmt {
                                                                                 if(pilhaFlowControl.size() > 1){
                                                                                   pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
-                                                                                  pilhaFlowControl.push_back($$);
+                                                                                  //pilhaFlowControl.push_back($$);
                                                                                 }else{
                                                                                   blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
                                                                                   pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
@@ -213,22 +213,27 @@ if_false_list:                                      { pilhaFlowControl.back()->s
 cond:         expr
               ;
 
-loop_stmt:    loop_prefix DO stmt_list loop_suffix  { 
-                                                      //
-                                                      // 
-                                                      //
+loop_stmt:    loop_prefix DO stmt_list loop_suffix  {
+                                                      if(pilhaFlowControl.size() > 1){
+                                                        //pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
+                                                        //pilhaFlowControl.push_back($$);
+                                                      }else{
+                                                        //blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
+                                                        pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
+                                                        pilhaFlowControl.pop_back();
+                                                      }
                                                     }
               ;
 
 loop_prefix:
               | WHILE cond                          {
-                                                      $$ = new While();
+                                                      $$ = new While($2);
                                                       pilhaFlowControl.push_back($$);
                                                     }
               ;
 
 loop_suffix:  UNTIL cond                            {
-                                                      $$ = new DoUntil();
+                                                      $$ = new DoUntil($2);
                                                       pilhaFlowControl.push_back($$);
                                                     }
               | END
