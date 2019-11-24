@@ -101,7 +101,7 @@
 %type <expr_t> expr_list cond expr term factor_a factor simple_expr constant
 %type <flow_t> if_stmt if_aux loop_stmt loop_prefix loop_suffix
 %type <string_t> RELOP NOT ADDOP MENOS MULOP
-%type <block_t> compound_stmt, block_aux
+%type <block_t> compound_stmt block_aux
 
 %left   T_IGUAL MENOS
 %right  RELOP ADDOP MULOP
