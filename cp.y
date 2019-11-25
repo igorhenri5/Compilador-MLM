@@ -340,7 +340,7 @@ std::string getType(std::string op, std::string e1Type, std::string e2Type){
   }else if(e1Type == "BOOLEAN" && e2Type == "BOOLEAN"){
     return "BOOLEAN";
   }
-  std::cout << "Semantic error - type mismatch, on line " << yylineno << std::endl;
+  std::cout << "Semantic error - type mismatch on line " << yylineno << std::endl;
   semanticError = true;
 }
 
@@ -356,5 +356,5 @@ int main(){
 }
 
 void yyerror(char *s){
-  std::cout << "Sintatic error - " << s << ", on line " << yylineno << std::endl;
+  std::cout << "Sintatic error - " << s << " on line " << yylineno << std::endl;
 }

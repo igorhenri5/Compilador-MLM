@@ -13,12 +13,14 @@ begin
 	e := 4;
 	f := 5;
 
+	read(a,b,c);
+
 	f := b + c * d - e;
 
 	if (a > 5)
-	then 
+	then
 		a := c;
-	else 
+	else
 		a := d;
 
 	if (a > 10)
@@ -26,11 +28,12 @@ begin
 		while (a > 5) do
 			a := a - 1;
 		end;
-	else		
+	else
 		do
 			a := a + 1;
 		until (a < 10);
 
 	b := a;
-	
+	write(a,b,c,d,e,f);
+
 end
