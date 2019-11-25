@@ -4,8 +4,6 @@
   #include <fstream>
   using namespace std;
 
-// int insideFlowControl = 0;
-
   extern int yylineno;
 
   void yyerror(char *s);
@@ -101,8 +99,10 @@ program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt    {
                                                                         Block *block = $5;
                                                                         Quadruplas *quadruplas;
                                                                         quadruplas = block->getQuadruplas();
-                                                                        quadruplas->print();
-                                                                        gerarCodigoObjeto(quadruplas);
+                                                                        if(!semanticError){
+                                                                        	quadruplas->print();
+                                                                        	gerarCodigoObjeto(quadruplas);
+                                                                        }
                                                                         quadruplas->deleteAll();
                                                                         delete block;
                                                                     }

@@ -69,8 +69,6 @@
   #include <fstream>
   using namespace std;
 
-// int insideFlowControl = 0;
-
   extern int yylineno;
 
   void yyerror(char *s);
@@ -91,7 +89,7 @@
   std::string outputFileName;
 
 
-#line 95 "y.tab.c" /* yacc.c:339  */
+#line 93 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -121,7 +119,7 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 30 "cp.y" /* yacc.c:355  */
+#line 28 "cp.y" /* yacc.c:355  */
 
 
   #include <iostream>
@@ -132,7 +130,7 @@ extern int yydebug;
   #include <fstream>
 
 
-#line 136 "y.tab.c" /* yacc.c:355  */
+#line 134 "y.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -210,7 +208,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 42 "cp.y" /* yacc.c:355  */
+#line 40 "cp.y" /* yacc.c:355  */
 
   int    int_t;
   int    bool_t;
@@ -221,7 +219,7 @@ union YYSTYPE
   FlowControl* flow_t;
   Block * block_t;
 
-#line 225 "y.tab.c" /* yacc.c:355  */
+#line 223 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -238,7 +236,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 242 "y.tab.c" /* yacc.c:358  */
+#line 240 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -538,7 +536,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    99,    99,   111,   112,   115,   124,   125,   128,   129,
+       0,    97,    97,   111,   112,   115,   124,   125,   128,   129,
      130,   131,   134,   147,   155,   156,   159,   160,   161,   162,
      163,   164,   167,   176,   188,   201,   206,   209,   212,   215,
      228,   231,   236,   239,   242,   257,   273,   274,   277,   278,
@@ -1380,14 +1378,16 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 99 "cp.y" /* yacc.c:1646  */
+#line 97 "cp.y" /* yacc.c:1646  */
     {
                                                                         table.printSymbolTable();
                                                                         Block *block = (yyvsp[0].block_t);
                                                                         Quadruplas *quadruplas;
                                                                         quadruplas = block->getQuadruplas();
-                                                                        quadruplas->print();
-                                                                        gerarCodigoObjeto(quadruplas);
+                                                                        if(!semanticError){
+                                                                        	quadruplas->print();
+                                                                        	gerarCodigoObjeto(quadruplas);
+                                                                        }
                                                                         quadruplas->deleteAll();
                                                                         delete block;
                                                                     }
