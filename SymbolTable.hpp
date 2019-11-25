@@ -111,52 +111,18 @@
 
       void print(){
         std::cout << "\n\nQuadruplas" << std::endl;
-        for(int i=0; this->quadruplas.size(); i++){
+        for(int i=0; i < this->quadruplas.size(); i++){
           std::cout << i  << " ";
           this->quadruplas.at(i)->print();
         }
       }
 
       void deleteAll(){
-          for(int i=0; this->quadruplas.size(); i++){
+          for(int i=0; i < this->quadruplas.size(); i++){
             delete this->quadruplas.at(i);
           }
       }
 
-  };
-
-  class Block{
-  private:
-      int nivel;
-      Quadruplas quadruplas;
-  public:
-      Block(int nivel){
-          this->nivel = nivel;
-      }
-
-      void addQuadrupla(Quadrupla* quadrupla){
-          this->quadruplas.push_back(quadrupla);
-      }
-
-      void addQuadruplas(Block *block){
-          Quadruplas *quadruplasTemp;
-          quadruplasTemp = block->getQuadruplas();
-          for(int i= 0; quadruplasTemp->size(); i++){
-              this->quadruplas.push_back(quadruplasTemp->at(i));
-          }
-      }
-
-      Quadruplas* getQuadruplas(){
-          return &this->quadruplas;
-      }
-
-      int getNivel(){
-          return this->nivel;
-      }
-
-      int getSize(){
-          return this->quadruplas.size();
-      }
   };
 
   class Expression {
@@ -164,7 +130,7 @@
     Expression *e1, *e2;
     std::string op, result, type, jumpType;
   public:
-    Expression(Expression *e1, std::string op, Expression *e2, std::string result, std::string type, SymbolTable::SymbolTable *table, Block *block){
+    Expression(Expression *e1, std::string op, Expression *e2, std::string result, std::string type, SymbolTable::SymbolTable *table, Quadruplas *quadruplas){
       this->e1 = e1;
       this->e2 = e2;
       this->op = op;
@@ -173,9 +139,9 @@
       this->jumpType = checkJumpType("op");
 
       table->install(this->result, this->type);
-      block->addQuadrupla(new Quadrupla(op, e1->result, e2->result, this->result));
+      quadruplas->push_back(new Quadrupla(op, e1->result, e2->result, this->result));
     }
-    Expression(Expression *e1, std::string op, std::string result, SymbolTable::SymbolTable *table, Block *block){
+    Expression(Expression *e1, std::string op, std::string result, SymbolTable::SymbolTable *table, Quadruplas *quadruplas){
       this->e1 = e1;
       this->op = op;
       this->result = result;
@@ -183,7 +149,7 @@
       this->jumpType = "JNZ";
 
       table->install(this->result, this->type);
-      block->addQuadrupla(new Quadrupla(op, e1->result, NULL, this->result));
+      quadruplas->push_back(new Quadrupla(op, e1->result, NULL, this->result));
     }
     Expression(std::string result, std::string type){
       this->result = result;
@@ -219,6 +185,7 @@
     FlowControl(){
     }
     ~FlowControl(){
+      //delete das lista ali
     }
     void setActiveList(std::string activeList){
       this->activeList = activeList;
@@ -230,17 +197,140 @@
         this->falseList.push_back(quadrupla);
       }
     }
+
+    Quadruplas *getQuadruplas(){
+        if(activeList == "true"){
+          return &this->trueList;
+        }else{
+          return &this->falseList;
+        }
+    }
+
+    virtual void commitLists(Quadruplas* quadruplas){
+
+    }
+  };
+
+  class If : public FlowControl{
+    private:
+    Expression* cond;
+    public:
+    If(Expression* cond){
+        this->cond = cond;
+    }
+    ~If(){
+    }
     void commitLists(Quadruplas* quadruplas){
-      quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(quadruplas->size()+trueList.size()+2), "", ""));
+        int jumpDistance;
+        // quadruplas->push_back(new Quadrupla("<IF>", "", "", ""));
+
+        if(falseList.size() == 0){
+            // jumpDistance = quadruplas->size() + trueList.size() + 1;
+            jumpDistance = trueList.size() + 1;
+        }
+        else{
+            // jumpDistance = quadruplas->size() + trueList.size() + 2;
+            jumpDistance = trueList.size() + 2;
+        }
+        quadruplas->push_back(new Quadrupla("IFFALSE", std::to_string(jumpDistance), "", ""));
+        for(int i=0; i<trueList.size() ;i++){
+            quadruplas->push_back(trueList.at(i));
+        }
+        if(falseList.size() > 0){
+            // jumpDistance = quadruplas->size() + falseList.size() + 1;
+            jumpDistance = falseList.size() + 1;
+            quadruplas->push_back(new Quadrupla("JUMP", std::to_string(jumpDistance), "", ""));
+            for(int i=0; i<falseList.size() ;i++){
+                quadruplas->push_back(falseList.at(i));
+            }
+        }
+    }
+  };
+
+  class While : public FlowControl{
+    private:
+    Expression* cond;
+    public:
+    While(Expression* cond){
+      this->cond = cond;
+      this->activeList = "true";
+    }
+    ~While(){
+    }
+    void commitLists(Quadruplas* quadruplas){
+      int start = quadruplas->size();
+      // quadruplas->push_back(new Quadrupla("<WHILE>", "", "", ""));
+      // quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(quadruplas->size()+trueList.size()+2), "", ""));
+      quadruplas->push_back(new Quadrupla("IFFALSE", std::to_string(trueList.size() + 2), "", ""));
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList.at(i));
       }
-      quadruplas->push_back(new Quadrupla("GOTO", std::to_string(quadruplas->size()+trueList.size()+falseList.size()), "", ""));
-      for(int i=0; i<falseList.size() ;i++){
-        quadruplas->push_back(falseList.at(i));
+      // quadruplas->push_back(new Quadrupla("GOTO", std::to_string(start-1), "", ""));
+      quadruplas->push_back(new Quadrupla("JUMP", std::to_string(start - quadruplas->size() - 1), "", ""));
+    }
+  };
+
+  class DoUntil : public FlowControl{
+    private:
+    Expression* cond;
+    public:
+    DoUntil(){
+      this->activeList = "true";
+    }
+    ~DoUntil(){
+    }
+    void setCondition(Expression* cond){
+      this->cond = cond;
+    }
+    void commitLists(Quadruplas* quadruplas){
+
+      // quadruplas->push_back(new Quadrupla("<DO>", "", "", ""));
+      int start = quadruplas->size();
+      for(int i=0; i<trueList.size() ;i++){
+        quadruplas->push_back(trueList.at(i));
+      }
+      // quadruplas->push_back(new Quadrupla("<UNTIL>", "", "", ""));
+      quadruplas->push_back(new Quadrupla("IFTRUE", std::to_string(start - quadruplas->size()), "", ""));
+    }
+  };
+
+  class Block{
+  private:
+      int nivel;
+      Quadruplas quadruplas;
+    std::vector<FlowControl*> flowControlStack;
+  public:
+      Block(int nivel){
+          this->nivel = nivel;
       }
 
-    }
+      void addQuadrupla(Quadrupla* quadrupla){
+          this->quadruplas.push_back(quadrupla);
+      }
+
+      void addQuadruplas(Block *block){
+          Quadruplas *quadruplasTemp;
+          quadruplasTemp = block->getQuadruplas();
+          for(int i= 0; quadruplasTemp->size(); i++){
+              this->quadruplas.push_back(quadruplasTemp->at(i));
+          }
+      }
+
+      Quadruplas* getQuadruplas(){
+          return &this->quadruplas;
+      }
+
+      std::vector<FlowControl*>* getFlowControlStack(){
+          return &this->flowControlStack;
+      }
+
+      int getNivel(){
+          return this->nivel;
+      }
+
+      int getSize(){
+          return this->quadruplas.size();
+      }
   };
 
 #endif

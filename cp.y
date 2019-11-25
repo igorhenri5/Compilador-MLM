@@ -1,39 +1,29 @@
 %{
   #include "SymbolTable.hpp"
+  #include <fstream>
   using namespace std;
+
+// int insideFlowControl = 0;
+
+  extern int yylineno;
 
   void yyerror(char *s);
   int yylex();
+  std::string getType(std::string op, std::string e1Type, std::string e2Type);
+  std::string newtemp();
+  void gerarCodigoObjeto(Quadruplas *quadruplas);
 
   SymbolTable::SymbolTable table;
   std::stack<Block*> blockStack;
   std::vector<FlowControl*> pilhaFlowControl;
-  std::vector<std::string> installBuffer;
+  std::vector<Expression*> expressionList;
+  std::vector<std::string> indentifierList;
   std::string type;
   int nivel = 0;
-
-  std::string getType(std::string op, std::string e1Type, std::string e2Type){
-    std::string type;
-    if((e1Type == "REAL" && (e2Type != "BOOLEAN")) || (e2Type == "REAL" && (e1Type != "BOOLEAN"))){
-      return "REAL";
-    }else if((e1Type == "INTEGER" && e2Type != "BOOLEAN") || (e2Type == "INTEGER" && e1Type != "BOOLEAN") ){
-      return "INTEGER";
-    }else if(e1Type == "CHAR" && e2Type == "CHAR"){
-      return "CHAR";
-    }else if(e1Type == "BOOLEAN" && e2Type == "BOOLEAN"){
-      return "BOOLEAN";
-    }
-    std::cout << "SEMANTIC ERROR - TYPE MISMATCH" << std::endl;
-    exit(1);
-  }
-
+  bool semanticError = false;
   int serial = 0;
-  std::string newtemp(){
-    std::string temp;
-    temp = "" + std::to_string(serial) + "t";
-    serial++;
-    return temp;
-  }
+  
+  std::string outputFileName;
 
 %}
 
@@ -44,6 +34,7 @@
   #include <vector>
   #include <string>
   #include "SymbolTable.hpp"
+  #include <fstream>
 
 }
 
@@ -97,9 +88,9 @@
 %token  MULOP
 
 %type <expr_t> expr_list cond expr term factor_a factor simple_expr constant
-%type <flow_t> if_stmt if_aux
+%type <flow_t> if_stmt if_aux loop_stmt loop_prefix
 %type <string_t> RELOP NOT ADDOP MENOS MULOP
-%type <block_t> compound_stmt, block_aux
+%type <block_t> compound_stmt block_aux
 
 %left   T_IGUAL MENOS
 %right  RELOP ADDOP MULOP
@@ -108,8 +99,11 @@
 program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt    {
                                                                         table.printSymbolTable();
                                                                         Block *block = $5;
-                                                                        block->getQuadruplas()->print();
-                                                                        block->getQuadruplas()->deleteAll();
+                                                                        Quadruplas *quadruplas;
+                                                                        quadruplas = block->getQuadruplas();
+                                                                        quadruplas->print();
+                                                                        gerarCodigoObjeto(quadruplas);
+                                                                        quadruplas->deleteAll();
                                                                         delete block;
                                                                     }
               ;
@@ -118,11 +112,11 @@ decl_list:    decl_list decl
               | decl
               ;
 
-decl:         ident_list T_DOISP type T_PVIRG {table.install(&installBuffer, type); installBuffer.clear();}
+decl:         ident_list T_DOISP type T_PVIRG {table.install(&indentifierList, type); indentifierList.clear();}
               ;
 
-ident_list:   ident_list T_VIRG IDENTIFIER {installBuffer.push_back($3);}
-              | IDENTIFIER                 {installBuffer.push_back($1);}
+ident_list:   ident_list T_VIRG IDENTIFIER {indentifierList.push_back($3);}
+              | IDENTIFIER                 {indentifierList.push_back($1);}
               ;
 
 type :        INTEGER     {type = "INTEGER"; }
@@ -173,86 +167,113 @@ assign_stmt:  IDENTIFIER T_IGUAL expr               {
                                                     }
               ;
 
-// tá quebrado pra if aninhado, tentei mas to querendo dormir ja nao to mais raciocinando direito
-if_stmt:      if_aux IF cond if_true_list THEN stmt                            {
-                                                                                if(pilhaFlowControl.size() > 1){
-                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
-                                                                                  $$ = new FlowControl();
-                                                                                  pilhaFlowControl.push_back($$);
-                                                                                }else{
-                                                                                  blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
-                                                                                  pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
-                                                                                  pilhaFlowControl.pop_back();
-                                                                                }
-                                                                              }
-              | if_aux IF cond THEN if_true_list stmt if_false_list ELSE stmt {
-                                                                                if(pilhaFlowControl.size() > 1){
+if_stmt:      if_aux if_true_list stmt                      {
+                                                                FlowControl *flowControl;
+                                                                flowControl = pilhaFlowControl.back();
+                                                                pilhaFlowControl.pop_back();
+                                                                if(pilhaFlowControl.size() > 0){
+                                                                    flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
+                                                                }
+                                                                else{
+                                                                    flowControl->commitLists(blockStack.top()->getQuadruplas());
+                                                                }
 
-                                                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
-                                                                                  $$ = new FlowControl();
-                                                                                  pilhaFlowControl.push_back($$);
-                                                                                }else{
-                                                                                  blockStack.top()->addQuadrupla(new Quadrupla("IF", $3->result, "_", "_"));
-                                                                                  pilhaFlowControl.back()->commitLists(blockStack.top()->getQuadruplas());
-                                                                                  pilhaFlowControl.pop_back();
-                                                                                }
-                                                                              }
+                                                            }
+              | if_aux if_true_list stmt if_false_list stmt {
+                                                              FlowControl *flowControl;
+                                                              flowControl = pilhaFlowControl.back();
+                                                              pilhaFlowControl.pop_back();
+                                                              if(pilhaFlowControl.size() > 0){
+                                                                  flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
+                                                              }
+                                                              else{
+                                                                  flowControl->commitLists(blockStack.top()->getQuadruplas());
+                                                              }
+                                                            }
               ;
 
-if_aux:                                             {
-                                                      $$ = new FlowControl();
-                                                      pilhaFlowControl.push_back($$);
+if_aux:       IF cond                               {
+                                                      pilhaFlowControl.push_back(new If($2));
                                                     }
               ;
 
-if_true_list:                                       { pilhaFlowControl.back()->setActiveList("true"); }
+if_true_list: THEN                                  { pilhaFlowControl.back()->setActiveList("true"); }
               ;
 
-if_false_list:                                      { pilhaFlowControl.back()->setActiveList("false"); }
+if_false_list: ELSE                                 { pilhaFlowControl.back()->setActiveList("false"); }
               ;
 
 cond:         expr
               ;
 
-loop_stmt:    stmt_prefix DO stmt_list stmt_suffix  { }
+loop_stmt:    loop_prefix DO stmt_list loop_suffix  {
+                                                      FlowControl *flowControl;
+                                                      flowControl = pilhaFlowControl.back();
+                                                      pilhaFlowControl.pop_back();
+                                                      if(pilhaFlowControl.size() > 0){
+                                                          flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
+                                                      }
+                                                      else{
+                                                          flowControl->commitLists(blockStack.top()->getQuadruplas());
+                                                      }
+                                                    }
               ;
 
-stmt_prefix:
-              | WHILE cond
+loop_prefix:                                        {
+                                                      pilhaFlowControl.push_back(new DoUntil());
+                                                    }
+              | WHILE cond                          {
+                                                      pilhaFlowControl.push_back(new While($2));
+                                                    }
               ;
 
-stmt_suffix:  UNTIL cond
+loop_suffix:  UNTIL cond                            {
+                                                      ((DoUntil*)pilhaFlowControl.back())->setCondition($2);
+                                                    }
               | END
               ;
 
 read_stmt:    READ T_ABRE ident_list T_FECHA  {
                                                 if(pilhaFlowControl.size()){
-                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("READ",  "_", "", ""));
-                                                }else{
-                                                  blockStack.top()->addQuadrupla(new Quadrupla("READ",  "_", "", ""));
+                                                  for(auto it = indentifierList.begin(); it != indentifierList.end(); it++){
+                                                    pilhaFlowControl.back()->addQuadrupla(new Quadrupla("READ",  *it, "", ""));
+                                                  }
                                                 }
+                                                else{
+                                                  for(auto it = indentifierList.begin(); it != indentifierList.end(); it++){
+                                                    blockStack.top()->addQuadrupla(new Quadrupla("READ",  *it, "", ""));
+                                                  }
+                                                }
+                                                indentifierList.clear();
                                               }
               ;
 
 write_stmt:   WRITE T_ABRE expr_list T_FECHA  {
                                                 if(pilhaFlowControl.size()){
-                                                  pilhaFlowControl.back()->addQuadrupla(new Quadrupla("WRITE",  "_", "", ""));
+                                                  for(auto it = expressionList.begin(); it != expressionList.end(); it++){
+                                                    pilhaFlowControl.back()->addQuadrupla(new Quadrupla("WRITE",  (*it)->result, "", ""));
+                                                    delete *it;
+                                                  }
                                                 }else{
-                                                  blockStack.top()->addQuadrupla(new Quadrupla("WRITE",  "_", "", ""));
+                                                  for(auto it = expressionList.begin(); it != expressionList.end(); it++){
+                                                    blockStack.top()->addQuadrupla(new Quadrupla("WRITE",  (*it)->result, "", ""));
+                                                    delete *it;
+                                                  }
                                                 }
+                                                expressionList.clear();
                                               }
               ;
 
-expr_list:    expr
-              | expr_list T_VIRG expr
+expr_list:    expr                      {expressionList.push_back($1);}
+              | expr_list T_VIRG expr   {expressionList.push_back($3);}
               ;
 
 expr:         simple_expr
-              | simple_expr RELOP simple_expr { //SHRUD -- se tá dentro de algum flowControl não é pra adicionar direto nas quadruplas, mas na trueList ou falseList -- da pra fazer isso criando mais construtor com &quadruplas viran &pilhaFlowlist e fazendo addQuadrupla pelo objeto flowControl
+              | simple_expr RELOP simple_expr {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               ;
@@ -260,16 +281,16 @@ expr:         simple_expr
 simple_expr:  term
               | simple_expr ADDOP term        {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               | simple_expr MENOS term        {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "-", $3, newtemp(), getType("-", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               ;
@@ -277,18 +298,18 @@ simple_expr:  term
 term:         factor_a
               | term MULOP factor_a           {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, blockStack.top());
+                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               ;
 
 factor_a:     MENOS factor                    {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($2, "-", newtemp(), &table, blockStack.top());
+                                                  $$ = new Expression($2, "-", newtemp(), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($2, "-", newtemp(), &table, blockStack.top());
+                                                  $$ = new Expression($2, "-", newtemp(), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               | factor
@@ -297,22 +318,157 @@ factor_a:     MENOS factor                    {
 factor:       IDENTIFIER              { $$ = new Expression($1, (table.get($1))->getType()); }
               | constant
               | T_ABRE expr T_FECHA   { $$ = $2; }
-              | NOT factor            { $$ = new Expression($2, "NOT", newtemp(), &table, blockStack.top()); }
+              | NOT factor            {
+                    if(pilhaFlowControl.size())
+                      $$ = new Expression($2, "NOT", newtemp(), &table, pilhaFlowControl.back()->getQuadruplas());
+                    else
+                                            $$ = new Expression($2, "NOT", newtemp(), &table, blockStack.top()->getQuadruplas());
+                    }
               ;
 
 constant:     INTEGER_CONSTANT    { $$ = new Expression($1, "INTEGER"); }
               | REAL_CONSTANT     { $$ = new Expression($1, "REAL");    }
-              | CHAR_CONSTANT     { $$ = new Expression($1, "BOOLEAN"); }
-              | BOOLEAN_CONSTANT  { $$ = new Expression($1, "CHAR");    }
+              | CHAR_CONSTANT     { $$ = new Expression($1, "CHAR"); }
+              | BOOLEAN_CONSTANT  { $$ = new Expression($1, "BOOLEAN");    }
               ;
 
 %%
 
-int main(){
-  int i;
-  return yyparse();
+
+
+std::string getType(std::string op, std::string e1Type, std::string e2Type){
+  std::string type;
+  if((e1Type == "REAL" && (e2Type != "BOOLEAN")) || (e2Type == "REAL" && (e1Type != "BOOLEAN"))){
+    return "REAL";
+  }else if((e1Type == "INTEGER" && e2Type != "BOOLEAN") || (e2Type == "INTEGER" && e1Type != "BOOLEAN") ){
+    return "INTEGER";
+  }else if(e1Type == "CHAR" && e2Type == "CHAR"){
+    return "CHAR";
+  }else if(e1Type == "BOOLEAN" && e2Type == "BOOLEAN"){
+    return "BOOLEAN";
+  }
+  std::cout << "Semantic error - type mismatch on line " << yylineno << std::endl;
+  semanticError = true;
+}
+
+std::string newtemp(){
+  std::string temp;
+  temp = "" + std::to_string(serial) + "t";
+  serial++;
+  return temp;
+}
+
+int getEndereco(std::string identifier){
+  return 0;
+}
+
+void gerarCodigoObjeto(Quadruplas *quadruplas){
+  std::cout << "\nCODIGO OBJETO" << std::endl;
+  int size = quadruplas->size();
+  std::ofstream codigoObjeto;
+  codigoObjeto.open(outputFileName);
+
+  for(int i=0; i<size; i++){
+    codigoObjeto << "QUAD" << i << ": ";
+    if(quadruplas->at(i)->op == ":="){
+      codigoObjeto << "LW $t1 0(" << quadruplas->at(i)->arg1 << ")" << std::endl;
+      codigoObjeto << "SW $t1 0(" << quadruplas->at(i)->result << ")" << std::endl;
+    
+    }else if(quadruplas->at(i)->op == "+"){
+      codigoObjeto << "LW $t1 0(" << quadruplas->at(i)->arg1 << ")" << std::endl;
+      codigoObjeto << "LW $t2 0(" << quadruplas->at(i)->arg2 << ")" << std::endl;
+      codigoObjeto << "ADD $t1 $t1 $t2" << std::endl;
+      codigoObjeto << "SW $t1 0(" << quadruplas->at(i)->result << ")" << std::endl;
+  
+    }else if(quadruplas->at(i)->op == "-"){
+      codigoObjeto << "LW $t1 0(" << quadruplas->at(i)->arg1 << ")" << std::endl;
+      codigoObjeto << "LW $t2 0(" << quadruplas->at(i)->arg2 << ")" << std::endl;
+      codigoObjeto << "SUB $t1 $t1 $t2" << std::endl;
+      codigoObjeto << "SW $t1 0(" << quadruplas->at(i)->result << ")" << std::endl;
+  
+    }else if(quadruplas->at(i)->op == "or"){
+      codigoObjeto << "LW $t1 0(" << quadruplas->at(i)->arg1 << ")" << std::endl;
+      codigoObjeto << "LW $t2 0(" << quadruplas->at(i)->arg2 << ")" << std::endl;
+      codigoObjeto << "OR $t1 $t1 $t2" << std::endl;
+      codigoObjeto << "SW $t1 0(" << quadruplas->at(i)->result << ")" << std::endl;
+  
+    }else if(quadruplas->at(i)->op == "*"){
+      codigoObjeto << "LW $t1 0(" << quadruplas->at(i)->arg1 << ")" << std::endl;
+      codigoObjeto << "LW $t2 0(" << quadruplas->at(i)->arg2 << ")" << std::endl;
+      codigoObjeto << "MULT $t1 $t2" << std::endl;
+      codigoObjeto << "MFLO $t1" << std::endl;
+      codigoObjeto << "SW $t1 0(" << quadruplas->at(i)->result << ")" << std::endl;
+  
+    }else if(quadruplas->at(i)->op == "/"){
+      codigoObjeto << "LW $t1 0(" << quadruplas->at(i)->arg1 << ")" << std::endl;
+      codigoObjeto << "LW $t2 0(" << quadruplas->at(i)->arg2 << ")" << std::endl;
+      codigoObjeto << "DIV $t1 $t2" << std::endl;
+      codigoObjeto << "MFHI $t1" << std::endl;
+      codigoObjeto << "SW $t1 0(" << quadruplas->at(i)->result << ")" << std::endl;
+  
+    }else if(quadruplas->at(i)->op == "div"){
+      codigoObjeto << "LW $t1 0(" << quadruplas->at(i)->arg1 << ")" << std::endl;
+      codigoObjeto << "LW $t2 0(" << quadruplas->at(i)->arg2 << ")" << std::endl;
+      codigoObjeto << "DIV $t1 $t2" << std::endl;
+      codigoObjeto << "MFHI $t1" << std::endl;
+      codigoObjeto << "SW $t1 0(" << quadruplas->at(i)->result << ")" << std::endl;
+  
+    }else if(quadruplas->at(i)->op == "mod"){
+      codigoObjeto << "LW $t1 0(" << quadruplas->at(i)->arg1 << ")" << std::endl;
+      codigoObjeto << "LW $t2 0(" << quadruplas->at(i)->arg2 << ")" << std::endl;
+      codigoObjeto << "DIV $t1 $t2" << std::endl;
+      codigoObjeto << "MFLO $t1" << std::endl;
+      codigoObjeto << "SW $t1 0(" << quadruplas->at(i)->result << ")" << std::endl;
+  
+    }else if(quadruplas->at(i)->op == "and"){
+      codigoObjeto << "LW $t1 0(" << quadruplas->at(i)->arg1 << ")" << std::endl;
+      codigoObjeto << "LW $t2 0(" << quadruplas->at(i)->arg2 << ")" << std::endl;
+      codigoObjeto << "AND $t1 $t1 $t2" << std::endl;
+      codigoObjeto << "SW $t1 0(" << quadruplas->at(i)->result << ")" << std::endl;
+  
+    }else if(quadruplas->at(i)->op == ">"){
+      codigoObjeto << "LW $t1 0(" << quadruplas->at(i)->arg1 << ")" << std::endl;
+      codigoObjeto << "LW $t2 0(" << quadruplas->at(i)->arg2 << ")" << std::endl;
+      
+    }else if(quadruplas->at(i)->op == "<"){
+
+    }else if(quadruplas->at(i)->op == "<="){
+
+    }else if(quadruplas->at(i)->op == ">="){
+
+    }else if(quadruplas->at(i)->op == "!="){
+
+    }else if(quadruplas->at(i)->op == "NOT"){
+      codigoObjeto << "LW $t1 0(" << quadruplas->at(i)->arg1 << ")" << std::endl;
+      codigoObjeto << "NOR $t1 $t1 $t1" << std::endl;
+      codigoObjeto << "SW $t1 0(" << quadruplas->at(i)->result << ")" << std::endl;
+
+    }else if(quadruplas->at(i)->op == "IFTRUE"){
+    //verificar o tipo certo do branch pra usar aqui
+    //olhar a expressao
+        std::cout << "BTRUE QUAD" << i+std::stoi(quadruplas->at(i)->arg1) << std::endl;
+    }else if(quadruplas->at(i)->op == "IFFALSE"){
+    //verificar o tipo certo do branch pra usar aqui
+    //olhar a expressao
+        std::cout << "BFALSE QUAD" << i+std::stoi(quadruplas->at(i)->arg1) << std::endl;
+    }else if(quadruplas->at(i)->op == "JUMP"){
+    std::cout << "JUMP QUAD" << i+std::stoi(quadruplas->at(i)->arg1) << std::endl;
+    } 
+    
+  }
+
+  codigoObjeto.close();
+}
+
+int main(int argc, char **argv){
+    if(argc != 2){
+        std::cout << "Passar o seguinte parametro: <outputFileName>" << std::endl;
+        return 1;
+    }
+    outputFileName = argv[1];
+    return yyparse() != 0 || semanticError;
 }
 
 void yyerror(char *s){
-  printf("\nERROR - %s",s);
+  std::cout << "Sintatic error - " << s << " on line " << yylineno << std::endl;
 }
