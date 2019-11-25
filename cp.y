@@ -369,7 +369,7 @@ int getEndereco(std::string identifier){
 }
 
 bool isConstant(std::string candidato){
-  return candidato.length() > 0 && candidato[0] >= '0' && candidato[0] <= '9' && candidato[candidato.length()] != 't';
+  return candidato.length() > 0 && candidato[0] >= '0' && candidato[0] <= '9' && candidato[candidato.length() - 1] != 't';
 }
 
 void carregarArg(std::ofstream *codigoObjeto, std::string arg, std::map<std::string, int> *declLocation){
@@ -377,7 +377,7 @@ void carregarArg(std::ofstream *codigoObjeto, std::string arg, std::map<std::str
     (*codigoObjeto) << "CRCT " << arg << std::endl;
   }
   else if(declLocation->find(arg) != declLocation->end())
-  	(*codigoObjeto) << "CRVL " << (*declLocation)[arg] << std::endl;
+  	(*codigoObjeto) << "CRVL 0 " << (*declLocation)[arg] << std::endl;
 }
 
 void armazenarResult(std::ofstream *codigoObjeto, std::string result, std::map<std::string, int> *declLocation){
