@@ -152,47 +152,36 @@ stmt:         assign_stmt   T_PVIRG
               ;
 
 assign_stmt:  IDENTIFIER T_IGUAL expr               {
-                                                        std::cout << "Assign" << std::endl;
                                                       if(pilhaFlowControl.size()){
                                                         pilhaFlowControl.back()->addQuadrupla(new Quadrupla(":=", $3->result, "", $1));
                                                       }else{
                                                         blockStack.top()->addQuadrupla(new Quadrupla(":=", $3->result, "", $1));
                                                       }
-                                                      std::cout << "Assign FIM" << std::endl;
-                                                      //delete $3;
-                                                      std::cout << "Assign DELETE" << std::endl;
                                                     }
               ;
 
-// tá quebrado pra if aninhado, tentei mas to querendo dormir ja nao to mais raciocinando direito
 if_stmt:      if_aux if_true_list stmt                      {
                                                                 FlowControl *flowControl;
                                                                 flowControl = pilhaFlowControl.back();
                                                                 pilhaFlowControl.pop_back();
-                                                                std::cout << "HEHE" << std::endl;
                                                                 if(pilhaFlowControl.size() > 0){
                                                                     flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
-                                                                    // delete flowControl;
                                                                 }
                                                                 else{
                                                                     flowControl->commitLists(blockStack.top()->getQuadruplas());
                                                                 }
-                                                                std::cout << "UHA" << std::endl;
 
                                                             }
               | if_aux if_true_list stmt if_false_list stmt {
                                                               FlowControl *flowControl;
                                                               flowControl = pilhaFlowControl.back();
                                                               pilhaFlowControl.pop_back();
-                                                              std::cout << "HEHE" << std::endl;
                                                               if(pilhaFlowControl.size() > 0){
                                                                   flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
-                                                                  // delete flowControl;
                                                               }
                                                               else{
                                                                   flowControl->commitLists(blockStack.top()->getQuadruplas());
                                                               }
-                                                              std::cout << "UHA" << std::endl;
                                                             }
               ;
 
@@ -214,15 +203,12 @@ loop_stmt:    loop_prefix DO stmt_list loop_suffix  {
                                                       FlowControl *flowControl;
                                                       flowControl = pilhaFlowControl.back();
                                                       pilhaFlowControl.pop_back();
-                                                      std::cout << "COLE" << std::endl;
                                                       if(pilhaFlowControl.size() > 0){
                                                           flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
-                                                          // delete flowControl;
                                                       }
                                                       else{
                                                           flowControl->commitLists(blockStack.top()->getQuadruplas());
                                                       }
-                                                      std::cout << "CABO" << std::endl;
                                                     }
               ;
 
@@ -231,7 +217,6 @@ loop_prefix:                                        {
                                                     }
               | WHILE cond                          {
                                                       pilhaFlowControl.push_back(new While($2));
-                                                      std::cout << "UHAAA" << std::endl;
                                                     }
               ;
 
@@ -277,7 +262,7 @@ expr_list:    expr											{expressionList.push_back($1);}
               ;
 
 expr:         simple_expr
-              | simple_expr RELOP simple_expr { //SHRUD -- se tá dentro de algum flowControl não é pra adicionar direto nas quadruplas, mas na trueList ou falseList -- da pra fazer isso criando mais construtor com &quadruplas viran &pilhaFlowlist e fazendo addQuadrupla pelo objeto flowControl
+              | simple_expr RELOP simple_expr {
                                                 if(pilhaFlowControl.size()){
                                                   $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
