@@ -152,12 +152,15 @@ stmt:         assign_stmt   T_PVIRG
               ;
 
 assign_stmt:  IDENTIFIER T_IGUAL expr               {
+                                                        std::cout << "Assign" << std::endl;
                                                       if(pilhaFlowControl.size()){
                                                         pilhaFlowControl.back()->addQuadrupla(new Quadrupla(":=", $3->result, "", $1));
                                                       }else{
                                                         blockStack.top()->addQuadrupla(new Quadrupla(":=", $3->result, "", $1));
                                                       }
-                                                      delete $3;
+                                                      std::cout << "Assign FIM" << std::endl;
+                                                      //delete $3;
+                                                      std::cout << "Assign DELETE" << std::endl;
                                                     }
               ;
 
@@ -166,26 +169,30 @@ if_stmt:      if_aux if_true_list stmt                      {
                                                                 FlowControl *flowControl;
                                                                 flowControl = pilhaFlowControl.back();
                                                                 pilhaFlowControl.pop_back();
+                                                                std::cout << "HEHE" << std::endl;
                                                                 if(pilhaFlowControl.size() > 0){
                                                                     flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
-                                                                    delete flowControl;
+                                                                    // delete flowControl;
                                                                 }
                                                                 else{
                                                                     flowControl->commitLists(blockStack.top()->getQuadruplas());
                                                                 }
+                                                                std::cout << "UHA" << std::endl;
 
                                                             }
               | if_aux if_true_list stmt if_false_list stmt {
                                                               FlowControl *flowControl;
                                                               flowControl = pilhaFlowControl.back();
                                                               pilhaFlowControl.pop_back();
+                                                              std::cout << "HEHE" << std::endl;
                                                               if(pilhaFlowControl.size() > 0){
                                                                   flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
-                                                                  delete flowControl;
+                                                                  // delete flowControl;
                                                               }
                                                               else{
                                                                   flowControl->commitLists(blockStack.top()->getQuadruplas());
                                                               }
+                                                              std::cout << "UHA" << std::endl;
                                                             }
               ;
 
@@ -207,14 +214,15 @@ loop_stmt:    loop_prefix DO stmt_list loop_suffix  {
                                                       FlowControl *flowControl;
                                                       flowControl = pilhaFlowControl.back();
                                                       pilhaFlowControl.pop_back();
+                                                      std::cout << "COLE" << std::endl;
                                                       if(pilhaFlowControl.size() > 0){
                                                           flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
-                                                          delete flowControl;
+                                                          // delete flowControl;
                                                       }
                                                       else{
                                                           flowControl->commitLists(blockStack.top()->getQuadruplas());
                                                       }
-                                                      
+                                                      std::cout << "CABO" << std::endl;
                                                     }
               ;
 
@@ -223,6 +231,7 @@ loop_prefix:                                        {
                                                     }
               | WHILE cond                          {
                                                       pilhaFlowControl.push_back(new While($2));
+                                                      std::cout << "UHAAA" << std::endl;
                                                     }
               ;
 
