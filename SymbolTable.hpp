@@ -222,7 +222,7 @@
     }
     void commitLists(Quadruplas* quadruplas){
         int jumpDistance;
-        quadruplas->push_back(new Quadrupla("<IF>", "", "", ""));
+        // quadruplas->push_back(new Quadrupla("<IF>", "", "", ""));
 
         if(falseList.size() == 0){
             // jumpDistance = quadruplas->size() + trueList.size() + 1;
@@ -259,7 +259,7 @@
     }
     void commitLists(Quadruplas* quadruplas){
       int start = quadruplas->size();
-      quadruplas->push_back(new Quadrupla("<WHILE>", "", "", ""));
+      // quadruplas->push_back(new Quadrupla("<WHILE>", "", "", ""));
       // quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(quadruplas->size()+trueList.size()+2), "", ""));
       quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(trueList.size() + 2), "", ""));
       for(int i=0; i<trueList.size() ;i++){
@@ -283,13 +283,14 @@
       this->cond = cond;
     }
     void commitLists(Quadruplas* quadruplas){
+
+      // quadruplas->push_back(new Quadrupla("<DO>", "", "", ""));
       int start = quadruplas->size();
-      quadruplas->push_back(new Quadrupla("<DO>", "", "", ""));
       for(int i=0; i<trueList.size() ;i++){
         quadruplas->push_back(trueList.at(i));
       }
-      quadruplas->push_back(new Quadrupla("<UNTIL>", "", "", ""));
-      quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(start - quadruplas->size() + 1), "", ""));
+      // quadruplas->push_back(new Quadrupla("<UNTIL>", "", "", ""));
+      quadruplas->push_back(new Quadrupla("JEQZ", std::to_string(start - quadruplas->size()), "", ""));
     }
   };
 
