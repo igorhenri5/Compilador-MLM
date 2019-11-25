@@ -20,6 +20,29 @@
   int nivel = 0;
   bool semanticError = false;
   int serial = 0;
+
+  //Dps a gente passa isso aqui pra um lugar melhor
+  //Gera código objeto MEPA(melhorzinho parece)? (tudo é arquitetura de pilha parece, até bytecode java)
+  //Tbm tem o MIPS, se quiser da de olhar
+  void gerarCodigoObjeto(Quadruplas *quadruplas){
+    std::cout << "\nCODIGO OBJETO" << std::endl;
+    int size = quadruplas->size();
+    /*
+    for(int i=0; i<size; i++){
+      //converterQuadrupla(quadruplas->at(i));
+      if(quadruplas->at(i)->op == "JFLSE"){
+
+      }else if(quadruplas->at(i)->op == "JTRUE"){
+
+      }else if(quadruplas->at(i)->op == ">"){
+
+      }else if(quadruplas->at(i)->op == "<"){
+
+      }else
+    }
+    */
+  }
+
 %}
 
 %code requires {
@@ -96,6 +119,7 @@ program:      PROGRAM IDENTIFIER T_PVIRG decl_list compound_stmt    {
                                                                         Quadruplas *quadruplas;
                                                                         quadruplas = block->getQuadruplas();
                                                                         quadruplas->print();
+                                                                        gerarCodigoObjeto(quadruplas);
                                                                         quadruplas->deleteAll();
                                                                         delete block;
                                                                     }

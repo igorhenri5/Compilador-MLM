@@ -23,6 +23,15 @@ begin
 	else
 		a := d;
 
+	if (b <= 7)
+	then
+		begin
+			a := 3;
+			while (a > 5) do
+				a := a - 1;
+			end;
+		end;
+
 	if (a > 10)
 	then
 		while (a > 5) do
