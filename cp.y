@@ -1,7 +1,6 @@
 %{
   #include "SymbolTable.hpp"
-  #include <map>
-  #include <fstream>
+
   using namespace std;
 
   extern int yylineno;
@@ -26,16 +25,14 @@
 %}
 
 %code requires {
-
-  #include <iostream>
+  #include "SymbolTable.hpp"
   #include <unordered_map>
+  #include <iostream>
+  #include <fstream>
   #include <vector>
   #include <string>
-  #include "SymbolTable.hpp"
-  #include <fstream>
-
+  #include <map>
 }
-
 
 %union{
   int    int_t;
