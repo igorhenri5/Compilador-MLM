@@ -477,12 +477,12 @@ void gerarCodigoObjeto(Quadruplas *quadruplas){
         else codigoObjeto << "LEIT" << std::endl;
       	armazenarResult(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
     }else if(quadruplas->at(i)->op == "WRITE"){
+      	carregarArg(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
 		if(quadruplas->at(i)->type == "REAL") codigoObjeto << "IMPF " << std::endl;
         else if(quadruplas->at(i)->type == "INTEGER") codigoObjeto << "IMPR " << std::endl;
       	else codigoObjeto << "IMPC" << std::endl;
-      	armazenarResult(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
     }
-    }
+  }
   codigoObjeto << "Q" << size << " PARA" << std::endl;
   codigoObjeto.close();
 }
