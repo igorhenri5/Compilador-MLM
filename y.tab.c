@@ -65,6 +65,7 @@
 #line 1 "cp.y" /* yacc.c:339  */
 
   #include "SymbolTable.hpp"
+  #include <map>
   #include <fstream>
   using namespace std;
 
@@ -82,7 +83,7 @@
   std::stack<Block*> blockStack;
   std::vector<FlowControl*> pilhaFlowControl;
   std::vector<Expression*> expressionList;
-  std::vector<std::string> indentifierList;
+  std::vector<std::string> indentifierList, declList;
   std::string type;
   int nivel = 0;
   bool semanticError = false;
@@ -90,7 +91,7 @@
   std::string outputFileName;
 
 
-#line 94 "y.tab.c" /* yacc.c:339  */
+#line 95 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -120,7 +121,7 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 29 "cp.y" /* yacc.c:355  */
+#line 30 "cp.y" /* yacc.c:355  */
 
 
   #include <iostream>
@@ -131,7 +132,7 @@ extern int yydebug;
   #include <fstream>
 
 
-#line 135 "y.tab.c" /* yacc.c:355  */
+#line 136 "y.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -209,7 +210,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 41 "cp.y" /* yacc.c:355  */
+#line 42 "cp.y" /* yacc.c:355  */
 
   int    int_t;
   int    bool_t;
@@ -220,7 +221,7 @@ union YYSTYPE
   FlowControl* flow_t;
   Block * block_t;
 
-#line 224 "y.tab.c" /* yacc.c:355  */
+#line 225 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -237,7 +238,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 241 "y.tab.c" /* yacc.c:358  */
+#line 242 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -537,12 +538,12 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    98,    98,   110,   111,   114,   117,   118,   121,   122,
-     123,   124,   127,   140,   148,   149,   152,   153,   154,   155,
-     156,   157,   160,   169,   181,   194,   199,   202,   205,   208,
-     221,   224,   229,   232,   235,   250,   266,   267,   270,   271,
-     280,   281,   288,   297,   298,   307,   314,   317,   318,   319,
-     320,   328,   329,   330,   331
+       0,    99,    99,   111,   112,   115,   124,   125,   128,   129,
+     130,   131,   134,   147,   155,   156,   159,   160,   161,   162,
+     163,   164,   167,   176,   188,   201,   206,   209,   212,   215,
+     228,   231,   236,   239,   242,   257,   273,   274,   277,   278,
+     287,   288,   295,   304,   305,   314,   321,   324,   325,   326,
+     327,   335,   336,   337,   338
 };
 #endif
 
@@ -1379,7 +1380,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 98 "cp.y" /* yacc.c:1646  */
+#line 99 "cp.y" /* yacc.c:1646  */
     {
                                                                         table.printSymbolTable();
                                                                         Block *block = (yyvsp[0].block_t);
@@ -1390,53 +1391,59 @@ yyreduce:
                                                                         quadruplas->deleteAll();
                                                                         delete block;
                                                                     }
-#line 1394 "y.tab.c" /* yacc.c:1646  */
+#line 1395 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 114 "cp.y" /* yacc.c:1646  */
-    {table.install(&indentifierList, type); indentifierList.clear();}
-#line 1400 "y.tab.c" /* yacc.c:1646  */
+#line 115 "cp.y" /* yacc.c:1646  */
+    {
+												table.install(&indentifierList, type);
+                                                for(int i = 0; i < indentifierList.size(); i++){
+                                                  declList.push_back(indentifierList[i]);
+                                                }
+                                                indentifierList.clear();
+                                              }
+#line 1407 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 117 "cp.y" /* yacc.c:1646  */
+#line 124 "cp.y" /* yacc.c:1646  */
     {indentifierList.push_back((yyvsp[0].string_t));}
-#line 1406 "y.tab.c" /* yacc.c:1646  */
+#line 1413 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 118 "cp.y" /* yacc.c:1646  */
+#line 125 "cp.y" /* yacc.c:1646  */
     {indentifierList.push_back((yyvsp[0].string_t));}
-#line 1412 "y.tab.c" /* yacc.c:1646  */
+#line 1419 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 121 "cp.y" /* yacc.c:1646  */
+#line 128 "cp.y" /* yacc.c:1646  */
     {type = "INTEGER"; }
-#line 1418 "y.tab.c" /* yacc.c:1646  */
+#line 1425 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 122 "cp.y" /* yacc.c:1646  */
+#line 129 "cp.y" /* yacc.c:1646  */
     {type = "REAL";    }
-#line 1424 "y.tab.c" /* yacc.c:1646  */
+#line 1431 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 123 "cp.y" /* yacc.c:1646  */
+#line 130 "cp.y" /* yacc.c:1646  */
     {type = "BOOLEAN"; }
-#line 1430 "y.tab.c" /* yacc.c:1646  */
+#line 1437 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 124 "cp.y" /* yacc.c:1646  */
+#line 131 "cp.y" /* yacc.c:1646  */
     {type = "CHAR";    }
-#line 1436 "y.tab.c" /* yacc.c:1646  */
+#line 1443 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 127 "cp.y" /* yacc.c:1646  */
+#line 134 "cp.y" /* yacc.c:1646  */
     {
                                                     if(blockStack.size() > 1){
                                                         Block *block;
@@ -1448,21 +1455,21 @@ yyreduce:
                                                         nivel--;
                                                     }
                                                 }
-#line 1452 "y.tab.c" /* yacc.c:1646  */
+#line 1459 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 140 "cp.y" /* yacc.c:1646  */
+#line 147 "cp.y" /* yacc.c:1646  */
     {
                 (yyval.block_t) = new Block(nivel);
                 blockStack.push((yyval.block_t));
                 nivel++;
             }
-#line 1462 "y.tab.c" /* yacc.c:1646  */
+#line 1469 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 160 "cp.y" /* yacc.c:1646  */
+#line 167 "cp.y" /* yacc.c:1646  */
     {
                                                       if(pilhaFlowControl.size()){
                                                         pilhaFlowControl.back()->addQuadrupla(new Quadrupla(":=", (yyvsp[0].expr_t)->result, "", (yyvsp[-2].string_t)));
@@ -1470,11 +1477,11 @@ yyreduce:
                                                         blockStack.top()->addQuadrupla(new Quadrupla(":=", (yyvsp[0].expr_t)->result, "", (yyvsp[-2].string_t)));
                                                       }
                                                     }
-#line 1474 "y.tab.c" /* yacc.c:1646  */
+#line 1481 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 169 "cp.y" /* yacc.c:1646  */
+#line 176 "cp.y" /* yacc.c:1646  */
     {
                                                                 FlowControl *flowControl;
                                                                 flowControl = pilhaFlowControl.back();
@@ -1487,11 +1494,11 @@ yyreduce:
                                                                 }
 
                                                             }
-#line 1491 "y.tab.c" /* yacc.c:1646  */
+#line 1498 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 181 "cp.y" /* yacc.c:1646  */
+#line 188 "cp.y" /* yacc.c:1646  */
     {
                                                               FlowControl *flowControl;
                                                               flowControl = pilhaFlowControl.back();
@@ -1503,31 +1510,31 @@ yyreduce:
                                                                   flowControl->commitLists(blockStack.top()->getQuadruplas());
                                                               }
                                                             }
-#line 1507 "y.tab.c" /* yacc.c:1646  */
+#line 1514 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 194 "cp.y" /* yacc.c:1646  */
+#line 201 "cp.y" /* yacc.c:1646  */
     {
                                                       pilhaFlowControl.push_back(new If((yyvsp[0].expr_t)));
                                                     }
-#line 1515 "y.tab.c" /* yacc.c:1646  */
+#line 1522 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 199 "cp.y" /* yacc.c:1646  */
+#line 206 "cp.y" /* yacc.c:1646  */
     { pilhaFlowControl.back()->setActiveList("true"); }
-#line 1521 "y.tab.c" /* yacc.c:1646  */
+#line 1528 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 202 "cp.y" /* yacc.c:1646  */
+#line 209 "cp.y" /* yacc.c:1646  */
     { pilhaFlowControl.back()->setActiveList("false"); }
-#line 1527 "y.tab.c" /* yacc.c:1646  */
+#line 1534 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 208 "cp.y" /* yacc.c:1646  */
+#line 215 "cp.y" /* yacc.c:1646  */
     {
                                                       FlowControl *flowControl;
                                                       flowControl = pilhaFlowControl.back();
@@ -1539,35 +1546,35 @@ yyreduce:
                                                           flowControl->commitLists(blockStack.top()->getQuadruplas());
                                                       }
                                                     }
-#line 1543 "y.tab.c" /* yacc.c:1646  */
+#line 1550 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 221 "cp.y" /* yacc.c:1646  */
+#line 228 "cp.y" /* yacc.c:1646  */
     {
                                                       pilhaFlowControl.push_back(new DoUntil());
                                                     }
-#line 1551 "y.tab.c" /* yacc.c:1646  */
+#line 1558 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 224 "cp.y" /* yacc.c:1646  */
+#line 231 "cp.y" /* yacc.c:1646  */
     {
                                                       pilhaFlowControl.push_back(new While((yyvsp[0].expr_t)));
                                                     }
-#line 1559 "y.tab.c" /* yacc.c:1646  */
+#line 1566 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 229 "cp.y" /* yacc.c:1646  */
+#line 236 "cp.y" /* yacc.c:1646  */
     {
                                                       ((DoUntil*)pilhaFlowControl.back())->setCondition((yyvsp[0].expr_t));
                                                     }
-#line 1567 "y.tab.c" /* yacc.c:1646  */
+#line 1574 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 235 "cp.y" /* yacc.c:1646  */
+#line 242 "cp.y" /* yacc.c:1646  */
     {
                                                 if(pilhaFlowControl.size()){
                                                 	for(auto it = indentifierList.begin(); it != indentifierList.end(); it++){
@@ -1581,11 +1588,11 @@ yyreduce:
                                                 }
                                                 indentifierList.clear();
                                               }
-#line 1585 "y.tab.c" /* yacc.c:1646  */
+#line 1592 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 250 "cp.y" /* yacc.c:1646  */
+#line 257 "cp.y" /* yacc.c:1646  */
     {
                                                 if(pilhaFlowControl.size()){
                                                 	for(auto it = expressionList.begin(); it != expressionList.end(); it++){
@@ -1600,23 +1607,23 @@ yyreduce:
                                                 }
                                                 expressionList.clear();
                                               }
-#line 1604 "y.tab.c" /* yacc.c:1646  */
+#line 1611 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 266 "cp.y" /* yacc.c:1646  */
+#line 273 "cp.y" /* yacc.c:1646  */
     {expressionList.push_back((yyvsp[0].expr_t));}
-#line 1610 "y.tab.c" /* yacc.c:1646  */
+#line 1617 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 267 "cp.y" /* yacc.c:1646  */
+#line 274 "cp.y" /* yacc.c:1646  */
     {expressionList.push_back((yyvsp[0].expr_t));}
-#line 1616 "y.tab.c" /* yacc.c:1646  */
+#line 1623 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 271 "cp.y" /* yacc.c:1646  */
+#line 278 "cp.y" /* yacc.c:1646  */
     {
                                                 if(pilhaFlowControl.size()){
                                                   (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), (yyvsp[-1].string_t), (yyvsp[0].expr_t), newtemp(), getType((yyvsp[-1].string_t), (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, pilhaFlowControl.back()->getQuadruplas());
@@ -1624,11 +1631,11 @@ yyreduce:
                                                   (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), (yyvsp[-1].string_t), (yyvsp[0].expr_t), newtemp(), getType((yyvsp[-1].string_t), (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
-#line 1628 "y.tab.c" /* yacc.c:1646  */
+#line 1635 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 281 "cp.y" /* yacc.c:1646  */
+#line 288 "cp.y" /* yacc.c:1646  */
     {
                                                 if(pilhaFlowControl.size()){
                                                   (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), "+", (yyvsp[0].expr_t), newtemp(), getType("+", (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, pilhaFlowControl.back()->getQuadruplas());
@@ -1636,11 +1643,11 @@ yyreduce:
                                                   (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), "+", (yyvsp[0].expr_t), newtemp(), getType("+", (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
-#line 1640 "y.tab.c" /* yacc.c:1646  */
+#line 1647 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 288 "cp.y" /* yacc.c:1646  */
+#line 295 "cp.y" /* yacc.c:1646  */
     {
                                                 if(pilhaFlowControl.size()){
                                                   (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), "-", (yyvsp[0].expr_t), newtemp(), getType("-", (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, pilhaFlowControl.back()->getQuadruplas());
@@ -1648,11 +1655,11 @@ yyreduce:
                                                   (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), "-", (yyvsp[0].expr_t), newtemp(), getType("-", (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
-#line 1652 "y.tab.c" /* yacc.c:1646  */
+#line 1659 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 298 "cp.y" /* yacc.c:1646  */
+#line 305 "cp.y" /* yacc.c:1646  */
     {
                                                 if(pilhaFlowControl.size()){
                                                   (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), "*", (yyvsp[0].expr_t), newtemp(), getType("*", (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, pilhaFlowControl.back()->getQuadruplas());
@@ -1660,11 +1667,11 @@ yyreduce:
                                                   (yyval.expr_t) = new Expression((yyvsp[-2].expr_t), "*", (yyvsp[0].expr_t), newtemp(), getType("*", (yyvsp[-2].expr_t)->type, (yyvsp[0].expr_t)->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
-#line 1664 "y.tab.c" /* yacc.c:1646  */
+#line 1671 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 307 "cp.y" /* yacc.c:1646  */
+#line 314 "cp.y" /* yacc.c:1646  */
     {
                                                 if(pilhaFlowControl.size()){
                                                   (yyval.expr_t) = new Expression((yyvsp[0].expr_t), "-", newtemp(), &table, pilhaFlowControl.back()->getQuadruplas());
@@ -1672,58 +1679,58 @@ yyreduce:
                                                   (yyval.expr_t) = new Expression((yyvsp[0].expr_t), "-", newtemp(), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
-#line 1676 "y.tab.c" /* yacc.c:1646  */
+#line 1683 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 317 "cp.y" /* yacc.c:1646  */
+#line 324 "cp.y" /* yacc.c:1646  */
     { (yyval.expr_t) = new Expression((yyvsp[0].string_t), (table.get((yyvsp[0].string_t)))->getType()); }
-#line 1682 "y.tab.c" /* yacc.c:1646  */
+#line 1689 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 319 "cp.y" /* yacc.c:1646  */
+#line 326 "cp.y" /* yacc.c:1646  */
     { (yyval.expr_t) = (yyvsp[-1].expr_t); }
-#line 1688 "y.tab.c" /* yacc.c:1646  */
+#line 1695 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 320 "cp.y" /* yacc.c:1646  */
+#line 327 "cp.y" /* yacc.c:1646  */
     {
 										if(pilhaFlowControl.size())
 											(yyval.expr_t) = new Expression((yyvsp[0].expr_t), "NOT", newtemp(), &table, pilhaFlowControl.back()->getQuadruplas());
 										else
                                             (yyval.expr_t) = new Expression((yyvsp[0].expr_t), "NOT", newtemp(), &table, blockStack.top()->getQuadruplas());
 										}
-#line 1699 "y.tab.c" /* yacc.c:1646  */
+#line 1706 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 328 "cp.y" /* yacc.c:1646  */
+#line 335 "cp.y" /* yacc.c:1646  */
     { (yyval.expr_t) = new Expression((yyvsp[0].string_t), "INTEGER"); }
-#line 1705 "y.tab.c" /* yacc.c:1646  */
+#line 1712 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 329 "cp.y" /* yacc.c:1646  */
+#line 336 "cp.y" /* yacc.c:1646  */
     { (yyval.expr_t) = new Expression((yyvsp[0].string_t), "REAL");    }
-#line 1711 "y.tab.c" /* yacc.c:1646  */
+#line 1718 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 330 "cp.y" /* yacc.c:1646  */
+#line 337 "cp.y" /* yacc.c:1646  */
     { (yyval.expr_t) = new Expression((yyvsp[0].string_t), "CHAR"); }
-#line 1717 "y.tab.c" /* yacc.c:1646  */
+#line 1724 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 331 "cp.y" /* yacc.c:1646  */
+#line 338 "cp.y" /* yacc.c:1646  */
     { (yyval.expr_t) = new Expression((yyvsp[0].string_t), "BOOLEAN");    }
-#line 1723 "y.tab.c" /* yacc.c:1646  */
+#line 1730 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1727 "y.tab.c" /* yacc.c:1646  */
+#line 1734 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1951,7 +1958,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 334 "cp.y" /* yacc.c:1906  */
+#line 341 "cp.y" /* yacc.c:1906  */
 
 
 
@@ -1978,31 +1985,126 @@ std::string newtemp(){
   return temp;
 }
 
-//Dps a gente passa isso aqui pra um lugar melhor
-//Gera código objeto MEPA(melhorzinho parece)? (tudo é arquitetura de pilha parece, até bytecode java)
-//Tbm tem o MIPS, se quiser da de olhar
+int getEndereco(std::string identifier){
+  return 0;
+}
+
+bool isConstant(std::string candidato){
+  return candidato.length() > 0 && candidato[0] >= '0' && candidato[0] <= '9' && candidato[candidato.length()] != 't';
+}
+
+void carregarArg(std::ofstream *codigoObjeto, std::string arg, std::map<std::string, int> *declLocation){
+  if(isConstant(arg)){
+    (*codigoObjeto) << "CRCT " << arg << std::endl;
+  }
+  else if(declLocation->find(arg) != declLocation->end())
+  	(*codigoObjeto) << "CRVL " << (*declLocation)[arg] << std::endl;
+}
+
+void armazenarResult(std::ofstream *codigoObjeto, std::string result, std::map<std::string, int> *declLocation){
+  if(declLocation->find(result) != declLocation->end())
+        (*codigoObjeto) << "ARMZ 0 " << (*declLocation)[result] << std::endl;
+}
+
+void geraCodigoDoisArgumentos(std::ofstream *codigoObjeto, Quadrupla *quadrupla, std::string comando, std::map<std::string, int> *declLocation){
+  	carregarArg(codigoObjeto, quadrupla->arg1, declLocation);
+    carregarArg(codigoObjeto, quadrupla->arg2, declLocation);
+  	(*codigoObjeto)  << comando << "I" << std::endl;
+    armazenarResult(codigoObjeto, quadrupla->result, declLocation);
+}
+
+void geraCodigoDoisArgumentosType(std::ofstream *codigoObjeto, Quadrupla *quadrupla, std::string comandoInt, std::string comandoF, std::map<std::string, int> *declLocation){
+  	carregarArg(codigoObjeto, quadrupla->arg1, declLocation);
+    carregarArg(codigoObjeto, quadrupla->arg2, declLocation);
+  	if(quadrupla->type == "INTEGER") (*codigoObjeto)  << comandoInt << std::endl;
+    else (*codigoObjeto)  << comandoF << std::endl;
+    armazenarResult(codigoObjeto, quadrupla->result, declLocation);
+}
+
 void gerarCodigoObjeto(Quadruplas *quadruplas){
-  std::cout << "\nCODIGO OBJETO" << std::endl;
+  std::map<std::string, int> declLocation;
   int size = quadruplas->size();
-  std::ofstream codigoObjeto;
-  codigoObjeto.open(outputFileName);
+  std::ofstream codigoObjeto(outputFileName);
+
   codigoObjeto << "INPP" << std::endl;
-  /*
-  for(int i=0; i<size; i++){
-    //converterQuadrupla(quadruplas->at(i));
-    if(quadruplas->at(i)->op == "IFTRUE"){
+  codigoObjeto << "AMEM " << declList.size() << std::endl;
 
-    }else if(quadruplas->at(i)->op == "IFFALSE"){
+  for(int i = 0; i < declList.size(); i++){
+    declLocation[declList[i]] = i;
+  }
 
-    }else if(quadruplas->at(i)->op == "JUMP"){
+  for(int i = 0; i < size; i++){
+    codigoObjeto << "Q" << i << " ";
+    if(quadruplas->at(i)->op == ":="){
+      carregarArg(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
+      armazenarResult(&codigoObjeto, quadruplas->at(i)->result, &declLocation);
+
+    }else if(quadruplas->at(i)->op == "+"){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "SOMA" , "SOMF", &declLocation);
+
+    }else if(quadruplas->at(i)->op == "-"){
+      if(quadruplas->at(i)->arg2 != ""){
+        geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "SUBT" , "SUBF", &declLocation);
+      }
+      else{
+        geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "INVI" , "INVF", &declLocation);
+      }
+
+    }else if(quadruplas->at(i)->op == "or"){
+      geraCodigoDoisArgumentos(&codigoObjeto, quadruplas->at(i), "DISJ", &declLocation);
+
+    }else if(quadruplas->at(i)->op == "*"){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "MULT" , "MULF", &declLocation);
+
+    }else if(quadruplas->at(i)->op == "/"){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "DIVI" , "DIVF", &declLocation);
+
+    }else if(quadruplas->at(i)->op == "div"){
+      geraCodigoDoisArgumentos(&codigoObjeto, quadruplas->at(i), "DIVI", &declLocation);
+
+    }else if(quadruplas->at(i)->op == "mod"){
+      carregarArg(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
+      carregarArg(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
+      carregarArg(&codigoObjeto, quadruplas->at(i)->arg2, &declLocation);
+      codigoObjeto << "DIVI" << std::endl;
+      carregarArg(&codigoObjeto, quadruplas->at(i)->arg2, &declLocation);
+      codigoObjeto << "MULT" << std::endl;
+      codigoObjeto << "SUBI" << std::endl;
+      armazenarResult(&codigoObjeto, quadruplas->at(i)->result, &declLocation);
+
+    }else if(quadruplas->at(i)->op == "and"){
+      geraCodigoDoisArgumentos(&codigoObjeto, quadruplas->at(i), "CONJ", &declLocation);
 
     }else if(quadruplas->at(i)->op == ">"){
-
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "CMMA", "CMMF", &declLocation);
     }else if(quadruplas->at(i)->op == "<"){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "CMME", "CMMF", &declLocation);
+    }else if(quadruplas->at(i)->op == "<="){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "CMEG", "CMEF", &declLocation);
+    }else if(quadruplas->at(i)->op == ">="){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "CMAG", "CMAF", &declLocation);
+    }else if(quadruplas->at(i)->op == "!="){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "CMDG", "CMDF", &declLocation);
+    }else if(quadruplas->at(i)->op == "NOT"){
+        codigoObjeto << "NEGA" << std::endl;
 
-    }else
-  }
-  */
+    }else if(quadruplas->at(i)->op == "IFFALSE"){
+        codigoObjeto << "DSVF Q" << i+std::stoi(quadruplas->at(i)->arg1) << std::endl;
+    }else if(quadruplas->at(i)->op == "JUMP"){
+		codigoObjeto << "DSVS Q" << i+std::stoi(quadruplas->at(i)->arg1) << std::endl;
+
+    }else if(quadruplas->at(i)->op == "READ"){
+		if(quadruplas->at(i)->type == "REAL") codigoObjeto << "LEIF" << std::endl;
+        else codigoObjeto << "LEIT" << std::endl;
+      	armazenarResult(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
+    }else if(quadruplas->at(i)->op == "WRITE"){
+		if(quadruplas->at(i)->type == "REAL") codigoObjeto << "IMPF " << std::endl;
+        else if(quadruplas->at(i)->type == "INTEGER") codigoObjeto << "IMPR " << std::endl;
+      	else codigoObjeto << "IMPC" << std::endl;
+      	armazenarResult(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
+    }
+    }
+  codigoObjeto << "Q" << size << " PARA" << std::endl;
   codigoObjeto.close();
 }
 

@@ -1,5 +1,6 @@
 %{
   #include "SymbolTable.hpp"
+  #include <map>
   #include <fstream>
   using namespace std;
 
@@ -17,7 +18,7 @@
   std::stack<Block*> blockStack;
   std::vector<FlowControl*> pilhaFlowControl;
   std::vector<Expression*> expressionList;
-  std::vector<std::string> indentifierList;
+  std::vector<std::string> indentifierList, declList;
   std::string type;
   int nivel = 0;
   bool semanticError = false;
@@ -111,7 +112,13 @@ decl_list:    decl_list decl
               | decl
               ;
 
-decl:         ident_list T_DOISP type T_PVIRG {table.install(&indentifierList, type); indentifierList.clear();}
+decl:         ident_list T_DOISP type T_PVIRG {
+												table.install(&indentifierList, type);
+                                                for(int i = 0; i < indentifierList.size(); i++){
+                                                  declList.push_back(indentifierList[i]);
+                                                }
+                                                indentifierList.clear();
+                                              }
               ;
 
 ident_list:   ident_list T_VIRG IDENTIFIER {indentifierList.push_back($3);}
@@ -357,31 +364,126 @@ std::string newtemp(){
   return temp;
 }
 
-//Dps a gente passa isso aqui pra um lugar melhor
-//Gera código objeto MEPA(melhorzinho parece)? (tudo é arquitetura de pilha parece, até bytecode java)
-//Tbm tem o MIPS, se quiser da de olhar
+int getEndereco(std::string identifier){
+  return 0;
+}
+
+bool isConstant(std::string candidato){
+  return candidato.length() > 0 && candidato[0] >= '0' && candidato[0] <= '9' && candidato[candidato.length()] != 't';
+}
+
+void carregarArg(std::ofstream *codigoObjeto, std::string arg, std::map<std::string, int> *declLocation){
+  if(isConstant(arg)){
+    (*codigoObjeto) << "CRCT " << arg << std::endl;
+  }
+  else if(declLocation->find(arg) != declLocation->end())
+  	(*codigoObjeto) << "CRVL " << (*declLocation)[arg] << std::endl;
+}
+
+void armazenarResult(std::ofstream *codigoObjeto, std::string result, std::map<std::string, int> *declLocation){
+  if(declLocation->find(result) != declLocation->end())
+        (*codigoObjeto) << "ARMZ 0 " << (*declLocation)[result] << std::endl;
+}
+
+void geraCodigoDoisArgumentos(std::ofstream *codigoObjeto, Quadrupla *quadrupla, std::string comando, std::map<std::string, int> *declLocation){
+  	carregarArg(codigoObjeto, quadrupla->arg1, declLocation);
+    carregarArg(codigoObjeto, quadrupla->arg2, declLocation);
+  	(*codigoObjeto)  << comando << "I" << std::endl;
+    armazenarResult(codigoObjeto, quadrupla->result, declLocation);
+}
+
+void geraCodigoDoisArgumentosType(std::ofstream *codigoObjeto, Quadrupla *quadrupla, std::string comandoInt, std::string comandoF, std::map<std::string, int> *declLocation){
+  	carregarArg(codigoObjeto, quadrupla->arg1, declLocation);
+    carregarArg(codigoObjeto, quadrupla->arg2, declLocation);
+  	if(quadrupla->type == "INTEGER") (*codigoObjeto)  << comandoInt << std::endl;
+    else (*codigoObjeto)  << comandoF << std::endl;
+    armazenarResult(codigoObjeto, quadrupla->result, declLocation);
+}
+
 void gerarCodigoObjeto(Quadruplas *quadruplas){
-  std::cout << "\nCODIGO OBJETO" << std::endl;
+  std::map<std::string, int> declLocation;
   int size = quadruplas->size();
-  std::ofstream codigoObjeto;
-  codigoObjeto.open(outputFileName);
+  std::ofstream codigoObjeto(outputFileName);
+
   codigoObjeto << "INPP" << std::endl;
-  /*
-  for(int i=0; i<size; i++){
-    //converterQuadrupla(quadruplas->at(i));
-    if(quadruplas->at(i)->op == "IFTRUE"){
+  codigoObjeto << "AMEM " << declList.size() << std::endl;
 
-    }else if(quadruplas->at(i)->op == "IFFALSE"){
+  for(int i = 0; i < declList.size(); i++){
+    declLocation[declList[i]] = i;
+  }
 
-    }else if(quadruplas->at(i)->op == "JUMP"){
+  for(int i = 0; i < size; i++){
+    codigoObjeto << "Q" << i << " ";
+    if(quadruplas->at(i)->op == ":="){
+      carregarArg(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
+      armazenarResult(&codigoObjeto, quadruplas->at(i)->result, &declLocation);
+
+    }else if(quadruplas->at(i)->op == "+"){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "SOMA" , "SOMF", &declLocation);
+
+    }else if(quadruplas->at(i)->op == "-"){
+      if(quadruplas->at(i)->arg2 != ""){
+        geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "SUBT" , "SUBF", &declLocation);
+      }
+      else{
+        geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "INVI" , "INVF", &declLocation);
+      }
+
+    }else if(quadruplas->at(i)->op == "or"){
+      geraCodigoDoisArgumentos(&codigoObjeto, quadruplas->at(i), "DISJ", &declLocation);
+
+    }else if(quadruplas->at(i)->op == "*"){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "MULT" , "MULF", &declLocation);
+
+    }else if(quadruplas->at(i)->op == "/"){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "DIVI" , "DIVF", &declLocation);
+
+    }else if(quadruplas->at(i)->op == "div"){
+      geraCodigoDoisArgumentos(&codigoObjeto, quadruplas->at(i), "DIVI", &declLocation);
+
+    }else if(quadruplas->at(i)->op == "mod"){
+      carregarArg(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
+      carregarArg(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
+      carregarArg(&codigoObjeto, quadruplas->at(i)->arg2, &declLocation);
+      codigoObjeto << "DIVI" << std::endl;
+      carregarArg(&codigoObjeto, quadruplas->at(i)->arg2, &declLocation);
+      codigoObjeto << "MULT" << std::endl;
+      codigoObjeto << "SUBI" << std::endl;
+      armazenarResult(&codigoObjeto, quadruplas->at(i)->result, &declLocation);
+
+    }else if(quadruplas->at(i)->op == "and"){
+      geraCodigoDoisArgumentos(&codigoObjeto, quadruplas->at(i), "CONJ", &declLocation);
 
     }else if(quadruplas->at(i)->op == ">"){
-
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "CMMA", "CMMF", &declLocation);
     }else if(quadruplas->at(i)->op == "<"){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "CMME", "CMMF", &declLocation);
+    }else if(quadruplas->at(i)->op == "<="){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "CMEG", "CMEF", &declLocation);
+    }else if(quadruplas->at(i)->op == ">="){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "CMAG", "CMAF", &declLocation);
+    }else if(quadruplas->at(i)->op == "!="){
+      geraCodigoDoisArgumentosType(&codigoObjeto, quadruplas->at(i), "CMDG", "CMDF", &declLocation);
+    }else if(quadruplas->at(i)->op == "NOT"){
+        codigoObjeto << "NEGA" << std::endl;
 
-    }else
-  }
-  */
+    }else if(quadruplas->at(i)->op == "IFFALSE"){
+        codigoObjeto << "DSVF Q" << i+std::stoi(quadruplas->at(i)->arg1) << std::endl;
+    }else if(quadruplas->at(i)->op == "JUMP"){
+		codigoObjeto << "DSVS Q" << i+std::stoi(quadruplas->at(i)->arg1) << std::endl;
+
+    }else if(quadruplas->at(i)->op == "READ"){
+		if(quadruplas->at(i)->type == "REAL") codigoObjeto << "LEIF" << std::endl;
+        else codigoObjeto << "LEIT" << std::endl;
+      	armazenarResult(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
+    }else if(quadruplas->at(i)->op == "WRITE"){
+		if(quadruplas->at(i)->type == "REAL") codigoObjeto << "IMPF " << std::endl;
+        else if(quadruplas->at(i)->type == "INTEGER") codigoObjeto << "IMPR " << std::endl;
+      	else codigoObjeto << "IMPC" << std::endl;
+      	armazenarResult(&codigoObjeto, quadruplas->at(i)->arg1, &declLocation);
+    }
+    }
+  codigoObjeto << "Q" << size << " PARA" << std::endl;
   codigoObjeto.close();
 }
 

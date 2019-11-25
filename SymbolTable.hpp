@@ -78,13 +78,21 @@
 
   class Quadrupla{
   public:
-    std::string op, arg1, arg2, result;
+    std::string op, arg1, arg2, result, type;
   public:
     Quadrupla(std::string op, std::string arg1, std::string arg2, std::string result){
       this->op = op;
       this->arg1 = arg1;
       this->arg2 = arg2;
       this->result = result;
+      this->type = "INTEGER";
+    }
+    Quadrupla(std::string op, std::string arg1, std::string arg2, std::string result, std::string type){
+      this->op = op;
+      this->arg1 = arg1;
+      this->arg2 = arg2;
+      this->result = result;
+      this->type = type;
     }
     void print(){
       std::cout << op << " " << arg1  << " " << arg2 << " " <<  result << std::endl;
@@ -290,7 +298,7 @@
         quadruplas->push_back(trueList.at(i));
       }
       // quadruplas->push_back(new Quadrupla("<UNTIL>", "", "", ""));
-      quadruplas->push_back(new Quadrupla("IFTRUE", std::to_string(start - quadruplas->size()), "", ""));
+      quadruplas->push_back(new Quadrupla("IFFALSE", std::to_string(start - quadruplas->size()), "", ""));
     }
   };
 

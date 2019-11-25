@@ -40,7 +40,7 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 29 "cp.y" /* yacc.c:1909  */
+#line 30 "cp.y" /* yacc.c:1909  */
 
 
   #include <iostream>
@@ -129,7 +129,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 41 "cp.y" /* yacc.c:1909  */
+#line 42 "cp.y" /* yacc.c:1909  */
 
   int    int_t;
   int    bool_t;
