@@ -1,3 +1,11 @@
-1052.55 ababaca
-1052.55E+1
-6E+10
+program teste01;
+
+a: integer;
+
+begin
+
+a := 1 + 2;
+
+write(a);
+
+end

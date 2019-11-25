@@ -1,13 +1,11 @@
-program teste02;
+program teste01;
 
-a: real;
+a: integer;
 
 begin
 
-read(a);
+a := 1 + 2;
 
-if(a = 5) 
-then a = 2
-else a = 1
+write(a);
 
 end

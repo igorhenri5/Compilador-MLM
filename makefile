@@ -25,4 +25,8 @@ y:
 	lex cp.lex
 	#gcc lex.yy.c y.tab.c -o cply
 	g++ lex.yy.c y.tab.c -o cply
-	./cply saida.out < teste4.txt
+#	./cply saida0.out < teste0.txt
+#	./cply saida1.out < teste1.txt
+#	./cply saida2.out < teste2.txt	
+#	./cply saida3.out < teste3.txt
+	./cply saida4.out < teste4.txt
