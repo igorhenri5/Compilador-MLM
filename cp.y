@@ -113,7 +113,7 @@ decl_list:    decl_list decl
               ;
 
 decl:         ident_list T_DOISP type T_PVIRG {
-												table.install(&indentifierList, type);
+												                        table.install(&indentifierList, type);
                                                 for(int i = 0; i < indentifierList.size(); i++){
                                                   declList.push_back(indentifierList[i]);
                                                 }
@@ -174,16 +174,15 @@ assign_stmt:  IDENTIFIER T_IGUAL expr               {
               ;
 
 if_stmt:      if_aux if_true_list stmt                      {
-                                                                FlowControl *flowControl;
-                                                                flowControl = pilhaFlowControl.back();
-                                                                pilhaFlowControl.pop_back();
-                                                                if(pilhaFlowControl.size() > 0){
-                                                                    flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
-                                                                }
-                                                                else{
-                                                                    flowControl->commitLists(blockStack.top()->getQuadruplas());
-                                                                }
-
+                                                              FlowControl *flowControl;
+                                                              flowControl = pilhaFlowControl.back();
+                                                              pilhaFlowControl.pop_back();
+                                                              if(pilhaFlowControl.size() > 0){
+                                                                  flowControl->commitLists(pilhaFlowControl.back()->getQuadruplas());
+                                                              }
+                                                              else{
+                                                                  flowControl->commitLists(blockStack.top()->getQuadruplas());
+                                                              }
                                                             }
               | if_aux if_true_list stmt if_false_list stmt {
                                                               FlowControl *flowControl;
@@ -287,9 +286,9 @@ expr:         simple_expr
 simple_expr:  term
               | simple_expr ADDOP term        {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($1, "+", $3, newtemp(), getType("+", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               | simple_expr MENOS term        {
@@ -304,9 +303,9 @@ simple_expr:  term
 term:         factor_a
               | term MULOP factor_a           {
                                                 if(pilhaFlowControl.size()){
-                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, pilhaFlowControl.back()->getQuadruplas());
                                                 }else{
-                                                  $$ = new Expression($1, "*", $3, newtemp(), getType("*", $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
+                                                  $$ = new Expression($1, $2, $3, newtemp(), getType($2, $1->type, $3->type), &table, blockStack.top()->getQuadruplas());
                                                 }
                                               }
               ;
@@ -325,17 +324,17 @@ factor:       IDENTIFIER              { $$ = new Expression($1, (table.get($1))-
               | constant
               | T_ABRE expr T_FECHA   { $$ = $2; }
               | NOT factor            {
-										if(pilhaFlowControl.size())
-											$$ = new Expression($2, "NOT", newtemp(), &table, pilhaFlowControl.back()->getQuadruplas());
-										else
-                                            $$ = new Expression($2, "NOT", newtemp(), &table, blockStack.top()->getQuadruplas());
-										}
+                    										if(pilhaFlowControl.size())
+                    											$$ = new Expression($2, "NOT", newtemp(), &table, pilhaFlowControl.back()->getQuadruplas());
+                    										else
+                                          $$ = new Expression($2, "NOT", newtemp(), &table, blockStack.top()->getQuadruplas());
+                  										}
               ;
 
-constant:     INTEGER_CONSTANT    { $$ = new Expression($1, "INTEGER"); }
-              | REAL_CONSTANT     { $$ = new Expression($1, "REAL");    }
-              | CHAR_CONSTANT     { $$ = new Expression($1, "CHAR"); }
-              | BOOLEAN_CONSTANT  { $$ = new Expression($1, "BOOLEAN");    }
+constant:     INTEGER_CONSTANT    { $$ = new Expression($1, "INTEGER");  }
+              | REAL_CONSTANT     { $$ = new Expression($1, "REAL");     }
+              | CHAR_CONSTANT     { $$ = new Expression($1, "CHAR");     }
+              | BOOLEAN_CONSTANT  { $$ = new Expression($1, "BOOLEAN");  }
               ;
 
 %%
