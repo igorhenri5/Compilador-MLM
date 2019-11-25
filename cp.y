@@ -10,6 +10,7 @@
   int yylex();
   std::string getType(std::string op, std::string e1Type, std::string e2Type);
   std::string newtemp();
+  void gerarCodigoObjeto(Quadruplas *quadruplas);
 
   SymbolTable::SymbolTable table;
   std::stack<Block*> blockStack;
@@ -20,28 +21,6 @@
   int nivel = 0;
   bool semanticError = false;
   int serial = 0;
-
-  //Dps a gente passa isso aqui pra um lugar melhor
-  //Gera código objeto MEPA(melhorzinho parece)? (tudo é arquitetura de pilha parece, até bytecode java)
-  //Tbm tem o MIPS, se quiser da de olhar
-  void gerarCodigoObjeto(Quadruplas *quadruplas){
-    std::cout << "\nCODIGO OBJETO" << std::endl;
-    int size = quadruplas->size();
-    /*
-    for(int i=0; i<size; i++){
-      //converterQuadrupla(quadruplas->at(i));
-      if(quadruplas->at(i)->op == "JFLSE"){
-
-      }else if(quadruplas->at(i)->op == "JTRUE"){
-
-      }else if(quadruplas->at(i)->op == ">"){
-
-      }else if(quadruplas->at(i)->op == "<"){
-
-      }else
-    }
-    */
-  }
 
 %}
 
@@ -373,6 +352,30 @@ std::string newtemp(){
   temp = "" + std::to_string(serial) + "t";
   serial++;
   return temp;
+}
+
+//Dps a gente passa isso aqui pra um lugar melhor
+//Gera código objeto MEPA(melhorzinho parece)? (tudo é arquitetura de pilha parece, até bytecode java)
+//Tbm tem o MIPS, se quiser da de olhar
+void gerarCodigoObjeto(Quadruplas *quadruplas){
+  std::cout << "\nCODIGO OBJETO" << std::endl;
+  int size = quadruplas->size();
+  /*
+  for(int i=0; i<size; i++){
+    //converterQuadrupla(quadruplas->at(i));
+    if(quadruplas->at(i)->op == "IFTRUE"){
+
+    }else if(quadruplas->at(i)->op == "IFFALSE"){
+
+    }else if(quadruplas->at(i)->op == "JUMP"){
+
+    }else if(quadruplas->at(i)->op == ">"){
+
+    }else if(quadruplas->at(i)->op == "<"){
+
+    }else
+  }
+  */
 }
 
 int main(){
