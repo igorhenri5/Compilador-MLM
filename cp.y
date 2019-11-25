@@ -1,5 +1,6 @@
 %{
   #include "SymbolTable.hpp"
+  #include <fstream>
   using namespace std;
 
 // int insideFlowControl = 0;
@@ -21,6 +22,7 @@
   int nivel = 0;
   bool semanticError = false;
   int serial = 0;
+  std::string outputFileName;
 
 %}
 
@@ -31,6 +33,7 @@
   #include <vector>
   #include <string>
   #include "SymbolTable.hpp"
+  #include <fstream>
 
 }
 
@@ -360,6 +363,9 @@ std::string newtemp(){
 void gerarCodigoObjeto(Quadruplas *quadruplas){
   std::cout << "\nCODIGO OBJETO" << std::endl;
   int size = quadruplas->size();
+  std::ofstream codigoObjeto;
+  codigoObjeto.open(outputFileName);
+  codigoObjeto << "INPP" << std::endl;
   /*
   for(int i=0; i<size; i++){
     //converterQuadrupla(quadruplas->at(i));
@@ -376,9 +382,15 @@ void gerarCodigoObjeto(Quadruplas *quadruplas){
     }else
   }
   */
+  codigoObjeto.close();
 }
 
-int main(){
+int main(int argc, char **argv){
+    if(argc != 2){
+        std::cout << "Passar o seguinte parametro: <outputFileName>" << std::endl;
+        return 1;
+    }
+    outputFileName = argv[1];
     return yyparse() != 0 || semanticError;
 }
 

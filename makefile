@@ -14,7 +14,7 @@
 #l:
 #	lex cp.lex
 #
-#c: 
+#c:
 #	gcc cp.c lex.yy.c -o cp
 #
 #ry:
@@ -24,5 +24,5 @@ y:
 	yacc -d cp.y
 	lex cp.lex
 	#gcc lex.yy.c y.tab.c -o cply
-	g++ lex.yy.c y.tab.c -o cply	
-	./cply < teste4.txt
+	g++ lex.yy.c y.tab.c -o cply
+	./cply saida.out < teste4.txt
