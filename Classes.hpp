@@ -143,11 +143,11 @@
         this->result = result;
         this->type   = type;
         table->install(this->result, this->type);
-        // std::cout << table->get(result)->getType() << " " << type << std::endl;
+        std::cout << table->get(result)->getType() << " " << type << std::endl;
         /*
         if(table->get(result)->getType() != type){
           std::cout << "TYPE MISMATCH" << std::endl;
-        }
+        } 
         */
         quadruplas->push_back(new Quadrupla(op, e1->result, e2->result, this->result));
       }
@@ -157,11 +157,11 @@
         this->result = result;
         this->type   = e1->type;
         table->install(this->result, this->type);
-        // std::cout << table->get(result)->getType() << " " << type << std::endl;
+        std::cout << table->get(result)->getType() << " " << type << std::endl;
         /*
         if(table->get(result)->getType() != type){
           std::cout << "TYPE MISMATCH" << std::endl;
-        }
+        } 
         */
         quadruplas->push_back(new Quadrupla(op, e1->result, NULL, this->result));
       }

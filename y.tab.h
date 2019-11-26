@@ -42,16 +42,15 @@ extern int yydebug;
 /* "%code requires" blocks.  */
 #line 28 "cp.y" /* yacc.c:1909  */
 
-
-  #include <iostream>
+  #include "SymbolTable.hpp"
   #include <unordered_map>
+  #include <iostream>
+  #include <fstream>
   #include <vector>
   #include <string>
-  #include "SymbolTable.hpp"
-  #include <fstream>
+  #include <map>
 
-
-#line 55 "y.tab.h" /* yacc.c:1909  */
+#line 54 "y.tab.h" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -129,7 +128,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 40 "cp.y" /* yacc.c:1909  */
+#line 38 "cp.y" /* yacc.c:1909  */
 
   int    int_t;
   int    bool_t;
@@ -140,7 +139,7 @@ union YYSTYPE
   FlowControl* flow_t;
   Block * block_t;
 
-#line 144 "y.tab.h" /* yacc.c:1909  */
+#line 143 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
