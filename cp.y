@@ -10,6 +10,7 @@
   std::string getType(std::string op, std::string e1Type, std::string e2Type);
   std::string newtemp();
   void gerarCodigoObjeto(Quadruplas *quadruplas);
+  void checkType(std::string tipoDesejado, std::string tipoObtido);
 
   SymbolTable::SymbolTable table;
   std::stack<Block*> blockStack;
@@ -162,6 +163,7 @@ stmt:         assign_stmt   T_PVIRG
               ;
 
 assign_stmt:  IDENTIFIER T_IGUAL expr               {
+                                                      checkType(table.get($1)->getType(), $3->type);
                                                       if(pilhaFlowControl.size()){
                                                         pilhaFlowControl.back()->addQuadrupla(new Quadrupla(":=", $3->result, "", $1));
                                                       }else{
@@ -360,8 +362,19 @@ std::string newtemp(){
   return temp;
 }
 
-int getEndereco(std::string identifier){
-  return 0;
+void checkType(std::string tipoDesejado, std::string tipoObtido){
+  if( tipoDesejado != tipoObtido){
+    if( tipoDesejado == "REAL" && tipoObtido == "INTEGER")
+      return;
+    if( tipoDesejado == "REAL" && tipoObtido == "CHAR")
+      return;
+    if( tipoDesejado == "INTEGER" && tipoObtido == "CHAR")
+      return;
+    std::cout << "Semantic error - type mismatch on line " << yylineno << std::endl;
+    std::cout << "Wanted: " << tipoDesejado << std::endl;
+    std::cout << "Got:    " << tipoObtido   << std::endl; 
+    semanticError = true;
+  }
 }
 
 bool isConstant(std::string candidato){
@@ -495,3 +508,4 @@ int main(int argc, char **argv){
 void yyerror(char *s){
   std::cout << "Sintatic error - " << s << " on line " << yylineno << std::endl;
 }
+

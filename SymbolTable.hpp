@@ -142,8 +142,13 @@
         this->op = op;
         this->result = result;
         this->type   = type;
-
         table->install(this->result, this->type);
+        std::cout << table->get(result)->getType() << " " << type << std::endl;
+        /*
+        if(table->get(result)->getType() != type){
+          std::cout << "TYPE MISMATCH" << std::endl;
+        } 
+        */
         quadruplas->push_back(new Quadrupla(op, e1->result, e2->result, this->result));
       }
       Expression(Expression *e1, std::string op, std::string result, SymbolTable::SymbolTable *table, Quadruplas *quadruplas){
@@ -151,8 +156,13 @@
         this->op = op;
         this->result = result;
         this->type   = e1->type;
-
         table->install(this->result, this->type);
+        std::cout << table->get(result)->getType() << " " << type << std::endl;
+        /*
+        if(table->get(result)->getType() != type){
+          std::cout << "TYPE MISMATCH" << std::endl;
+        } 
+        */
         quadruplas->push_back(new Quadrupla(op, e1->result, NULL, this->result));
       }
       Expression(std::string result, std::string type){
